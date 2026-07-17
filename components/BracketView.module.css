@@ -1,0 +1,188 @@
+.bracketContainer {
+  width: 100%;
+  padding: var(--space-4) 0;
+  overflow-x: auto;
+}
+
+.bracketScroll {
+  display: flex;
+  gap: var(--space-10);
+  min-width: max-content;
+  padding: var(--space-4);
+}
+
+.roundColumn {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+}
+
+.roundHeader {
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border-glass);
+  padding-bottom: var(--space-3);
+}
+
+.roundHeader h3 {
+  font-size: 1.15rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+}
+
+.matchCount {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.matchesList {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+  gap: var(--space-6);
+}
+
+.matchCardWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.matchCard {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-card);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background-color: var(--color-bg-glass);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+.liveMatch {
+  border-color: var(--color-border-glow);
+  box-shadow: var(--shadow-glow-orange), var(--shadow-ambient);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.04);
+}
+
+.completedMatch {
+  border-color: var(--color-border-glass);
+}
+
+.courtTag {
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  background-color: var(--color-accent-primary);
+  color: var(--color-bg-canvas);
+  font-size: 0.65rem;
+  font-weight: var(--font-weight-extrabold);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  text-transform: uppercase;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-body);
+}
+
+.teamName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.winner {
+  color: var(--color-text-heading);
+  font-weight: var(--font-weight-semibold);
+}
+
+.loser {
+  opacity: 0.4;
+}
+
+.score {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-status-success);
+  background-color: oklch(75% 0.16 145 / 0.1);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+}
+
+.liveScore {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-primary);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.15);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--color-border-glass);
+  width: 100%;
+}
+
+.scoreBtn {
+  margin-top: var(--space-1);
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.75rem !important;
+  border-radius: var(--radius-interactive);
+}
+
+.liveIndicator {
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  background-color: oklch(75% 0.16 145 / 0.1);
+  color: var(--color-status-success);
+  border: 1px solid oklch(75% 0.16 145 / 0.2);
+  font-size: 0.65rem;
+  font-weight: var(--font-weight-bold);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Connective lines for bracket columns */
+.roundColumn:not(:last-child) .matchCardWrapper::after {
+  content: '';
+  position: absolute;
+  right: -48px;
+  top: 50%;
+  width: 48px;
+  height: 1px;
+  background-color: var(--color-border-glass);
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .bracketScroll {
+    gap: var(--space-6);
+  }
+  .roundColumn:not(:last-child) .matchCardWrapper::after {
+    right: -24px;
+    width: 24px;
+  }
+}

@@ -1,0 +1,352 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background-color: var(--color-bg-glass);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  border-bottom: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-ambient);
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-text-heading);
+  letter-spacing: var(--letter-spacing-tight);
+  user-select: none;
+  transition: transform var(--duration-normal) var(--ease-spring);
+}
+
+.logoImage {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-interactive);
+  border: 1px solid var(--color-border-glass);
+  background: var(--color-bg-canvas);
+  object-fit: cover;
+  transition: transform var(--duration-normal) var(--ease-spring), border-color var(--duration-normal) var(--ease-smooth);
+}
+
+.logo:hover .logoImage {
+  transform: scale(1.12) rotate(-6deg);
+  border-color: var(--color-accent-primary);
+  box-shadow: var(--shadow-glow-orange);
+}
+
+.logoAccent {
+  color: var(--color-accent-primary);
+}
+
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-interactive);
+  text-decoration: none;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-bold);
+  transition: all var(--duration-fast) var(--ease-smooth);
+  user-select: none;
+}
+
+.navLink:hover {
+  color: var(--color-text-heading);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.active {
+  color: var(--color-accent-primary);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.08) !important;
+}
+
+/* Controls (Top-Right) */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.controlBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-interactive);
+  border: 1px solid var(--color-border-glass);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.controlBtn:hover {
+  color: var(--color-text-heading);
+  border-color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lockBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-interactive);
+  border: 1px solid var(--color-border-glass);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  height: 36px;
+  transition: all var(--duration-normal) var(--ease-spring);
+  user-select: none;
+}
+
+.lockBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-heading);
+  border-color: var(--color-text-muted);
+}
+
+.locked {
+  color: var(--color-text-muted);
+  border-color: var(--color-border-glass);
+}
+
+.unlocked {
+  color: var(--color-accent-primary);
+  border-color: oklch(68% 0.22 var(--hue-orange) / 0.35);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.06);
+}
+
+.unlocked:hover {
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.1);
+  border-color: oklch(68% 0.22 var(--hue-orange) / 0.5);
+}
+
+/* Modal Styling */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(9, 7, 20, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.modal {
+  width: 100%;
+  max-width: 340px;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-card);
+  background-color: var(--color-bg-glass);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  box-shadow: var(--shadow-ambient);
+}
+
+.modal h3 {
+  font-size: 1.15rem;
+  margin-bottom: var(--space-3);
+  color: var(--color-text-heading);
+  text-align: center;
+}
+
+.promptForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.errorText {
+  color: var(--color-status-danger);
+  font-size: 0.75rem;
+  text-align: center;
+  font-weight: var(--font-weight-semibold);
+}
+
+.modalButtons {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+/* Mobile Navigation Bar */
+.mobileBottomNav {
+  display: none;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .container {
+    height: 100%;
+    padding: 0 var(--space-3);
+  }
+
+  .desktopNav {
+    display: none;
+  }
+
+  .logo {
+    font-size: 1.1rem;
+  }
+
+  .controlBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .lockBtn {
+    height: 32px;
+    padding: 0 var(--space-2);
+    gap: 4px;
+  }
+
+  .lockText {
+    font-size: 0.75rem;
+  }
+
+  /* Bottom nav visible */
+  .mobileBottomNav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: var(--color-bg-glass);
+    backdrop-filter: blur(var(--blur-glass));
+    -webkit-backdrop-filter: blur(var(--blur-glass));
+    border-top: 1px solid var(--color-border-subtle);
+    box-shadow: var(--shadow-ambient);
+    z-index: 50;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mobileNavLink {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 100%;
+    flex: 1;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    font-size: 0.65rem;
+    font-weight: var(--font-weight-bold);
+    transition: all var(--duration-fast) var(--ease-smooth);
+  }
+
+  .mobileNavLink:hover {
+    color: var(--color-text-heading);
+  }
+
+  .mobileActive {
+    color: var(--color-accent-primary) !important;
+    text-shadow: 0 0 12px oklch(68% 0.22 var(--hue-orange) / 0.35);
+  }
+}
+
+/* Sidebar Responsive Styles for Desktop */
+@media (min-width: 769px) {
+  .header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 240px !important;
+    height: 100vh !important;
+    border-right: 1px solid var(--color-border-subtle) !important;
+    border-bottom: none !important;
+    background-color: var(--color-bg-glass) !important;
+    box-shadow: var(--shadow-ambient) !important;
+    z-index: 50 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    height: 100% !important;
+    padding: var(--space-6) var(--space-4) !important;
+    gap: var(--space-8) !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .desktopNav {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--space-2) !important;
+    width: 100% !important;
+  }
+
+  .navLink {
+    width: 100% !important;
+    padding: var(--space-3) var(--space-4) !important;
+    font-size: 0.9rem !important;
+    gap: var(--space-3) !important;
+  }
+
+  .controls {
+    margin-top: auto !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .lockBtn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}

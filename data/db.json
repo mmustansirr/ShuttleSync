@@ -1,0 +1,376 @@
+{
+  "players": [
+    {
+      "id": "p1",
+      "name": "Akash Sharma",
+      "rating": 5,
+      "stats": {
+        "played": 14,
+        "wins": 10,
+        "losses": 4
+      }
+    },
+    {
+      "id": "p2",
+      "name": "Bhavna Patel",
+      "rating": 3,
+      "stats": {
+        "played": 11,
+        "wins": 6,
+        "losses": 5
+      }
+    },
+    {
+      "id": "p3",
+      "name": "Chirag Reddy",
+      "rating": 4,
+      "stats": {
+        "played": 10,
+        "wins": 6,
+        "losses": 4
+      }
+    },
+    {
+      "id": "p4",
+      "name": "Divya Sen",
+      "rating": 2,
+      "stats": {
+        "played": 7,
+        "wins": 2,
+        "losses": 5
+      }
+    },
+    {
+      "id": "p5",
+      "name": "Eshwar Rao",
+      "rating": 5,
+      "stats": {
+        "played": 15,
+        "wins": 11,
+        "losses": 4
+      }
+    },
+    {
+      "id": "p6",
+      "name": "Farhan Khan",
+      "rating": 3,
+      "stats": {
+        "played": 10,
+        "wins": 4,
+        "losses": 6
+      }
+    },
+    {
+      "id": "p7",
+      "name": "Gaurav Joshi",
+      "rating": 4,
+      "stats": {
+        "played": 10,
+        "wins": 7,
+        "losses": 3
+      }
+    },
+    {
+      "id": "p8",
+      "name": "Hari Prasad",
+      "rating": 1,
+      "stats": {
+        "played": 4,
+        "wins": 0,
+        "losses": 4
+      }
+    },
+    {
+      "id": "p9",
+      "name": "Isha Gupta",
+      "rating": 3,
+      "stats": {
+        "played": 7,
+        "wins": 3,
+        "losses": 4
+      }
+    },
+    {
+      "id": "p10",
+      "name": "Jatin Verma",
+      "rating": 2,
+      "stats": {
+        "played": 8,
+        "wins": 3,
+        "losses": 5
+      }
+    }
+  ],
+  "tournaments": [
+    {
+      "id": "t-c9uooxd",
+      "name": "BANANA",
+      "status": "active",
+      "currentStageIndex": 0,
+      "stages": [
+        {
+          "id": "stage-25ddyb9",
+          "type": "round-robin",
+          "status": "active",
+          "groups": [
+            {
+              "id": "g-p33sh78",
+              "name": "Group A",
+              "teams": [
+                {
+                  "id": "team-0-rvq1",
+                  "name": "Akash Sharma & Hari Prasad",
+                  "playerIds": [
+                    "p1",
+                    "p8"
+                  ]
+                },
+                {
+                  "id": "team-1-liqd",
+                  "name": "Eshwar Rao & Jatin Verma",
+                  "playerIds": [
+                    "p5",
+                    "p10"
+                  ]
+                },
+                {
+                  "id": "team-2-46n7",
+                  "name": "Chirag Reddy & Divya Sen",
+                  "playerIds": [
+                    "p3",
+                    "p4"
+                  ]
+                },
+                {
+                  "id": "team-3-q5v7",
+                  "name": "Gaurav Joshi & Isha Gupta",
+                  "playerIds": [
+                    "p7",
+                    "p9"
+                  ]
+                },
+                {
+                  "id": "team-4-ca8q",
+                  "name": "Bhavna Patel & Farhan Khan",
+                  "playerIds": [
+                    "p2",
+                    "p6"
+                  ]
+                }
+              ],
+              "matches": [
+                {
+                  "id": "m-yr7kscw",
+                  "team1Id": "team-1-liqd",
+                  "team2Id": "team-4-ca8q",
+                  "score": {
+                    "set1": {
+                      "team1": 0,
+                      "team2": 0
+                    },
+                    "set2": {
+                      "team1": 0,
+                      "team2": 0
+                    }
+                  },
+                  "status": "pending"
+                },
+                {
+                  "id": "m-cfnjdcz",
+                  "team1Id": "team-2-46n7",
+                  "team2Id": "team-3-q5v7",
+                  "score": {
+                    "set1": {
+                      "team1": 0,
+                      "team2": 0
+                    },
+                    "set2": {
+                      "team1": 0,
+                      "team2": 0
+                    }
+                  },
+                  "status": "pending"
+                },
+                {
+                  "id": "m-gf9amoz",
+                  "team1Id": "team-2-46n7",
+                  "team2Id": "team-0-rvq1",
+                  "score": {
+                    "set1": {
+                      "team1": 0,
+                      "team2": 0
+                    },
+                    "set2": {
+                      "team1": 0,
+                      "team2": 0
+                    }
+                  },
+                  "status": "pending"
+                },
+                {
+                  "id": "m-yybba25",
+                  "team1Id": "team-3-q5v7",
+                  "team2Id": "team-4-ca8q",
+                  "score": {
+                    "set1": {
+                      "team1": 0,
+                      "team2": 0
+                    },
+                    "set2": {
+                      "team1": 0,
+                      "team2": 0
+                    }
+                  },
+                  "status": "pending"
+                },
+                {
+                  "id": "m-ga97cgo",
+                  "team1Id": "team-3-q5v7",
+                  "team2Id": "team-1-liqd",
+                  "score": {
+                    "set1": {
+                      "team1": 0,
+                      "team2": 0
+                    },
+                    "set2": {
+                      "team1": 0,
+                      "team2": 0
+                    }
+                  },
+                  "status": "pending"
+                },
+                {
+                  "id": "m-j3znnxz",
+                  "team1Id": "team-4-ca8q",
+                  "team2Id": "team-0-rvq1",
+                  "score": {
+                    "set1": {
+                      "team1": 0,
+                      "team2": 0
+                    },
+                    "set2": {
+                      "team1": 0,
+                      "team2": 0
+                    }
+                  },
+                  "status": "pending"
+                },
+                {
+                  "id": "m-k9cidwm",
+                  "team1Id": "team-4-ca8q",
+                  "team2Id": "team-2-46n7",
+                  "score": {
+                    "set1": {
+                      "team1": 0,
+                      "team2": 0
+                    },
+                    "set2": {
+                      "team1": 0,
+                      "team2": 0
+                    }
+                  },
+                  "status": "pending"
+                },
+                {
+                  "id": "m-31kid2f",
+                  "team1Id": "team-0-rvq1",
+                  "team2Id": "team-1-liqd",
+                  "score": {
+                    "set1": {
+                      "team1": 0,
+                      "team2": 0
+                    },
+                    "set2": {
+                      "team1": 0,
+                      "team2": 0
+                    }
+                  },
+                  "status": "pending"
+                },
+                {
+                  "id": "m-iqxmyz0",
+                  "team1Id": "team-0-rvq1",
+                  "team2Id": "team-3-q5v7",
+                  "score": {
+                    "set1": {
+                      "team1": 0,
+                      "team2": 0
+                    },
+                    "set2": {
+                      "team1": 0,
+                      "team2": 0
+                    }
+                  },
+                  "status": "pending"
+                },
+                {
+                  "id": "m-ltgy5ju",
+                  "team1Id": "team-1-liqd",
+                  "team2Id": "team-2-46n7",
+                  "score": {
+                    "set1": {
+                      "team1": 0,
+                      "team2": 0
+                    },
+                    "set2": {
+                      "team1": 0,
+                      "team2": 0
+                    }
+                  },
+                  "status": "pending"
+                }
+              ]
+            }
+          ],
+          "teams": [
+            {
+              "id": "team-0-rvq1",
+              "name": "Akash Sharma & Hari Prasad",
+              "playerIds": [
+                "p1",
+                "p8"
+              ]
+            },
+            {
+              "id": "team-1-liqd",
+              "name": "Eshwar Rao & Jatin Verma",
+              "playerIds": [
+                "p5",
+                "p10"
+              ]
+            },
+            {
+              "id": "team-2-46n7",
+              "name": "Chirag Reddy & Divya Sen",
+              "playerIds": [
+                "p3",
+                "p4"
+              ]
+            },
+            {
+              "id": "team-3-q5v7",
+              "name": "Gaurav Joshi & Isha Gupta",
+              "playerIds": [
+                "p7",
+                "p9"
+              ]
+            },
+            {
+              "id": "team-4-ca8q",
+              "name": "Bhavna Patel & Farhan Khan",
+              "playerIds": [
+                "p2",
+                "p6"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sessions": {
+    "activePlayers": [],
+    "courtQueue": [],
+    "completedMatches": []
+  }
+}

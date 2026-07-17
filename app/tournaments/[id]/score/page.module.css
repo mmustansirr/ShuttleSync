@@ -1,0 +1,681 @@
+/* Point Scoring Page Styles - Aero UI Theme & UX */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  color: var(--color-text-body);
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--duration-fast) var(--ease-smooth);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-interactive);
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-border-glass);
+}
+
+.backBtn:hover {
+  color: var(--color-text-heading);
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--color-text-muted);
+}
+
+.matchMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.matchLabel {
+  font-size: clamp(1.1rem, 4vw, 1.35rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+}
+
+.statusBadge {
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-extrabold);
+  border-radius: var(--radius-badge);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.statusBadge.pending {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-muted);
+  border-color: var(--color-border-glass);
+}
+
+.statusBadge.live {
+  background-color: oklch(75% 0.16 145 / 0.1);
+  color: var(--color-status-success);
+  border-color: oklch(75% 0.16 145 / 0.3);
+  box-shadow: 0 0 10px oklch(75% 0.16 145 / 0.15);
+  animation: pulseLiveBorder 2s infinite;
+}
+
+.statusBadge.completed {
+  background-color: oklch(62% 0.21 28 / 0.1);
+  color: var(--color-status-danger);
+  border-color: oklch(62% 0.21 28 / 0.2);
+}
+
+@keyframes pulseLiveBorder {
+  0% { border-color: oklch(75% 0.16 145 / 0.3); }
+  50% { border-color: oklch(75% 0.16 145 / 0.8); }
+  100% { border-color: oklch(75% 0.16 145 / 0.3); }
+}
+
+/* Panel Grid Layout */
+.panelGrid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 950px) {
+  .panelGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scoreCol, .courtAssistantCol {
+  width: 100%;
+}
+
+/* Score Card Container */
+.scoreCard {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+@media (max-width: 480px) {
+  .scoreCard {
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+}
+
+/* Set Tabs (Segmented Control) */
+.setSelectorRow {
+  display: flex;
+  gap: 6px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-border-glass);
+  padding: 4px;
+  border-radius: var(--radius-interactive);
+}
+
+.setTab {
+  flex: 1;
+  padding: var(--space-2);
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.setTab:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--color-text-heading);
+}
+
+.activeSetTab {
+  background-color: var(--color-accent-primary) !important;
+  color: var(--color-bg-canvas) !important;
+  box-shadow: var(--shadow-glow-orange);
+}
+
+/* Court Number Row */
+.courtLabelsRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.courtInputLabel {
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+}
+
+.courtInput {
+  width: 130px;
+  background-color: rgba(0, 0, 0, 0.2);
+  height: 38px;
+  text-align: center;
+}
+
+/* Tap Score Controller Area */
+.scoreTapArea {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: var(--space-4);
+  position: relative;
+}
+
+@media (max-width: 480px) {
+  .scoreTapArea {
+    gap: var(--space-2);
+  }
+}
+
+.teamScoreSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-glass);
+  background-color: rgba(255, 255, 255, 0.01);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--duration-normal) var(--ease-smooth);
+  position: relative;
+  min-width: 0;
+}
+
+.teamScoreSection:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: var(--color-border-glow);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+  .teamScoreSection {
+    padding: var(--space-4) var(--space-2);
+  }
+}
+
+.servingHighlight {
+  border-color: var(--color-accent-primary) !important;
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.04) !important;
+  box-shadow: 0 0 16px oklch(68% 0.22 var(--hue-orange) / 0.1);
+}
+
+.teamNameTitle {
+  font-size: clamp(0.9rem, 3vw, 1.1rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: var(--space-3);
+}
+
+.hugeScore {
+  font-size: clamp(3rem, 12vw, 5.5rem);
+  font-weight: var(--font-weight-extrabold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-heading);
+  text-align: center;
+  line-height: 1.1;
+  margin: var(--space-1) 0;
+  font-family: var(--font-mono);
+}
+
+.scoreButtonsRow {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+  margin-top: var(--space-4);
+  justify-content: center;
+}
+
+.downBtn {
+  flex: 1;
+  max-width: 44px;
+  height: 40px;
+  border-radius: var(--radius-interactive);
+  border: 1px solid var(--color-border-glass);
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.downBtn:hover:not(:disabled) {
+  background-color: oklch(62% 0.21 28 / 0.15);
+  border-color: var(--color-status-danger);
+  color: var(--color-status-danger);
+}
+
+.downBtn:disabled {
+  opacity: 0.15;
+  cursor: not-allowed;
+}
+
+.upBtn {
+  flex: 2;
+  height: 40px;
+  border-radius: var(--radius-interactive);
+  background-color: var(--color-accent-primary);
+  color: var(--color-bg-canvas);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-glow-orange);
+}
+
+.upBtn:hover:not(:disabled) {
+  background-color: var(--color-accent-primary-hover);
+}
+
+.serveStatusIndicator {
+  margin-top: var(--space-4);
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-accent-primary);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.12);
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-badge);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.serveStatusIndicatorEmpty {
+  margin-top: var(--space-4);
+  font-size: 0.7rem;
+}
+
+.vsSeparator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-disabled);
+  font-family: var(--font-mono);
+}
+
+/* Set Summaries Display */
+.scoreSummary {
+  display: flex;
+  gap: var(--space-3);
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--space-3);
+}
+
+.summaryItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-2) 0;
+  border-radius: var(--radius-interactive);
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.summaryItem span {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.summaryItem strong {
+  font-size: 1rem;
+  color: var(--color-text-body);
+  font-family: var(--font-mono);
+}
+
+.summaryItemActive {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border-glass);
+}
+
+.summaryItemActive strong {
+  color: var(--color-accent-primary);
+}
+
+/* Actions Bar */
+.scoreActionsRow {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin-top: var(--space-2);
+}
+
+.undoBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 44px;
+  padding: 0 var(--space-4);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-interactive);
+  border: 1px solid var(--color-border-glass);
+  background-color: rgba(255, 255, 255, 0.02);
+  color: var(--color-text-body);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.undoBtn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-text-muted);
+}
+
+.undoBtn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.completedBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-4);
+  background-color: oklch(75% 0.16 145 / 0.08);
+  color: var(--color-status-success);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-interactive);
+  border: 1px solid oklch(75% 0.16 145 / 0.25);
+  font-size: 0.95rem;
+}
+
+/* Court Assistant Card */
+.assistantCard {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+@media (max-width: 480px) {
+  .assistantCard {
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+}
+
+.assistantCard h3 {
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+}
+
+.serveStatusBox {
+  background-color: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.serveStatusItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.serveStatusLabel {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.toggleServeBtn {
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border-glass);
+  color: var(--color-text-heading);
+  padding: 4px var(--space-3);
+  border-radius: var(--radius-interactive);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.toggleServeBtn:hover:not(:disabled) {
+  border-color: var(--color-accent-primary);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.06);
+}
+
+.toggleServeBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.serverNameSpan {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-primary);
+}
+
+.receiverNameSpan {
+  font-weight: var(--font-weight-bold);
+  color: oklch(65% 0.2 290); /* Soft premium purple */
+}
+
+/* Court Diagram - Horizontal Layout */
+.courtMapContainer {
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-card);
+  background-color: rgba(0, 0, 0, 0.35);
+  padding: var(--space-4) var(--space-3);
+  width: 100%;
+}
+
+.courtGrid {
+  display: flex;
+  background-color: rgba(9, 7, 20, 0.9);
+  border: 2px solid var(--color-accent-primary);
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.85 / 1;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.courtSide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+}
+
+.interactiveSide {
+  cursor: pointer;
+}
+
+.interactiveSide:hover .courtZone:not(.zoneEmpty) {
+  background-color: rgba(255, 255, 255, 0.025);
+}
+
+.sideHeader {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-size: clamp(0.6rem, 1.8vw, 0.75rem);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-text-disabled);
+  letter-spacing: var(--letter-spacing-wide);
+  z-index: 10;
+  pointer-events: none;
+  width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.courtSide:nth-child(3) .sideHeader {
+  left: auto;
+  right: 10px;
+  text-align: right;
+}
+
+.quadrantsColumn {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.quadrantsColumn > div:first-child {
+  border-bottom: 1.5px solid oklch(68% 0.22 var(--hue-orange) / 0.45);
+}
+
+.courtZone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-2);
+  position: relative;
+  transition: all var(--duration-normal) var(--ease-smooth);
+  height: 50%;
+  min-width: 0;
+}
+
+.zoneEmpty {
+  opacity: 0.12;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-size: 8px 8px;
+}
+
+.sideLabel {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: clamp(0.5rem, 1.5vw, 0.6rem);
+  color: oklch(68% 0.22 var(--hue-orange) / 0.45);
+  font-weight: var(--font-weight-bold);
+  pointer-events: none;
+}
+
+.courtSide:nth-child(3) .sideLabel {
+  right: auto;
+  left: 6px;
+}
+
+.courtPlayerName {
+  font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+  text-align: center;
+  width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  line-height: 1.2;
+}
+
+/* Active Highlight Overlays */
+.activeServeZone {
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.15) !important;
+  box-shadow: inset 0 0 12px oklch(68% 0.22 var(--hue-orange) / 0.4);
+  border: 1px solid var(--color-accent-primary);
+  z-index: 5;
+}
+
+.activeReceiveZone {
+  background-color: oklch(65% 0.2 290 / 0.12) !important;
+  box-shadow: inset 0 0 12px oklch(65% 0.2 290 / 0.4);
+  border: 1px solid oklch(65% 0.2 290);
+  z-index: 5;
+}
+
+.shuttleIcon {
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+.courtSide:nth-child(3) .shuttleIcon {
+  right: auto;
+  left: 6px;
+}
+
+/* Net Divider */
+.netDivider {
+  width: 14px;
+  background-color: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-left: 1.5px solid var(--color-border-glass);
+  border-right: 1.5px solid var(--color-border-glass);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 10;
+}
+
+.netLine {
+  flex: 1;
+  width: 1px;
+  border-left: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.netTag {
+  font-size: 0.52rem;
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-canvas);
+  padding: 2px 3px;
+  border-radius: 2px;
+  letter-spacing: var(--letter-spacing-wide);
+  transform: rotate(-90deg);
+  white-space: nowrap;
+  margin: var(--space-2) 0;
+}
+
+.diagramTip {
+  display: flex;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: var(--space-3);
+  line-height: 1.4;
+  text-align: center;
+  justify-content: center;
+}

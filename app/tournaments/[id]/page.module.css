@@ -1,0 +1,273 @@
+/* Tournament Detail Dashboard page styles */
+
+.header {
+  margin-bottom: var(--space-6);
+}
+
+.titleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.titleRow h1 {
+  margin-bottom: 0;
+  font-size: 1.65rem;
+}
+
+.badgeWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.metaRow {
+  display: flex;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.stagePicker {
+  margin-bottom: 0;
+  padding: 3px;
+  width: auto;
+  display: inline-flex;
+}
+
+.stagePickerBtn {
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 var(--space-3);
+  font-size: 0.75rem;
+}
+
+.tabContentPanel {
+  margin-top: var(--space-6);
+}
+
+.standingsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.groupCard {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border-glass);
+  background-color: var(--color-bg-glass);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  box-shadow: var(--shadow-ambient);
+}
+
+.groupCard h2 {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-glass);
+  padding-bottom: var(--space-2);
+}
+
+.matchesPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.groupsMatches {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.matchesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.teamsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.teamBadgeCard {
+  background-color: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--color-border-glass);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-interactive);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  position: relative;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.teamBadgeCard:hover {
+  border-color: var(--color-border-glow);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.04);
+}
+
+.teamBadgeIndex {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-primary);
+  font-family: var(--font-mono);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.1);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.teamBadgeName {
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Admin panel styling */
+.adminActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.stageProgressionBox {
+  background-color: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.stageProgressionBox h3 {
+  font-size: 1.05rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  margin-bottom: var(--space-1);
+}
+
+.progressForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.formRow {
+  display: flex;
+  gap: var(--space-4);
+}
+
+@media (max-width: 600px) {
+  .formRow {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}
+
+.dangerZone {
+  border-top: 1px solid oklch(62% 0.21 28 / 0.15);
+  padding-top: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.dangerZone h3 {
+  font-size: 1.05rem;
+  color: var(--color-status-danger);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
+}
+
+/* Champions Card on details page */
+.championsCard {
+  border: 1px solid rgba(255, 215, 0, 0.35) !important;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05) 0%, rgba(138, 43, 226, 0.08) 100%) !important;
+  box-shadow: 0 10px 40px rgba(255, 215, 0, 0.08), var(--shadow-ambient) !important;
+  padding: var(--space-5);
+  border-radius: var(--radius-card);
+  margin-bottom: var(--space-6);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: pulseGold 3s infinite alternate;
+}
+
+@keyframes pulseGold {
+  0% { box-shadow: 0 10px 40px rgba(255, 215, 0, 0.08), var(--shadow-ambient); }
+  100% { box-shadow: 0 10px 40px rgba(255, 215, 0, 0.18), var(--shadow-ambient); }
+}
+
+.championsHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  z-index: 2;
+}
+
+.trophyEmoji {
+  font-size: 3.5rem;
+  line-height: 1;
+  animation: bounceTrophy 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes bounceTrophy {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-8px) scale(1.05); }
+}
+
+.championsText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.championsText h2 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #FFD700;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-1);
+}
+
+.winnerTeamName {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--color-text-heading);
+  background: linear-gradient(135deg, #FFF 30%, #FFD700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2px;
+}
+
+.winnerPlayers {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+

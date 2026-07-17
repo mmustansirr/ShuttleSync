@@ -1,0 +1,169 @@
+.card {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-ambient);
+  transition: transform var(--duration-normal) var(--ease-spring),
+              border-color var(--duration-normal) var(--ease-smooth),
+              box-shadow var(--duration-normal) var(--ease-smooth);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-border-glow);
+  box-shadow: var(--shadow-glow-volt), var(--shadow-card-hover);
+}
+
+.liveCard {
+  border-color: oklch(68% 0.22 var(--hue-orange) / 0.3);
+  box-shadow: var(--shadow-glow-volt), var(--shadow-ambient);
+  background: radial-gradient(100% 100% at 0% 0%, 
+    oklch(68% 0.22 var(--hue-orange) / 0.05) 0%, 
+    transparent 100%
+  ), var(--color-bg-glass);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: var(--space-2);
+}
+
+.courtName {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-text-muted);
+}
+
+.statusWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.liveBadge {
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.12);
+  padding: 3px 10px;
+  border-radius: var(--radius-badge);
+  border: 1px solid oklch(68% 0.22 var(--hue-orange) / 0.35);
+  box-shadow: 0 0 8px oklch(68% 0.22 var(--hue-orange) / 0.15);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.completedBadge {
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-status-success);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: oklch(75% 0.16 145 / 0.1);
+  padding: 3px 10px;
+  border-radius: var(--radius-badge);
+  border: 1px solid oklch(75% 0.16 145 / 0.2);
+}
+
+.pendingBadge {
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  background-color: rgba(255, 255, 255, 0.02);
+  padding: 3px 10px;
+  border-radius: var(--radius-badge);
+  border: 1px solid var(--color-border-glass);
+}
+
+.teamsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.teamRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 2px 0;
+  transition: opacity var(--duration-normal) var(--ease-smooth);
+}
+
+.teamName {
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.winner .teamName {
+  color: var(--color-text-heading);
+  font-weight: var(--font-weight-bold);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.loser {
+  opacity: 0.45;
+}
+
+.setsWrapper {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.scoreBox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-border-glass);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.setWinner {
+  color: var(--color-accent-primary);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.15);
+  border-color: oklch(68% 0.22 var(--hue-orange) / 0.35);
+}
+
+.currentSet {
+  border-color: oklch(68% 0.22 var(--hue-orange) / 0.5);
+  background-color: oklch(68% 0.22 var(--hue-orange) / 0.05);
+  box-shadow: 0 0 8px oklch(68% 0.22 var(--hue-orange) / 0.2);
+}
+
+.winner .setWinner {
+  color: var(--color-accent-primary);
+  box-shadow: 0 0 10px oklch(68% 0.22 var(--hue-orange) / 0.3);
+}
+
+.actions {
+  margin-top: 2px;
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: var(--space-3);
+}

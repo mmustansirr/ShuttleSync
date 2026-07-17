@@ -1,0 +1,206 @@
+.heroSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+  padding: var(--space-6) var(--space-8);
+  border-radius: var(--radius-card);
+  background: radial-gradient(120% 120% at 0% 0%, 
+    oklch(22% 0.08 280 / 0.15) 0%, 
+    oklch(68% 0.22 var(--hue-orange) / 0.03) 50%, 
+    transparent 100%
+  ), var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-ambient);
+  position: relative;
+  overflow: hidden;
+  container-type: inline-size;
+}
+
+/* Subtle glowing accent line on top of hero section */
+.heroSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    var(--color-accent-primary) 20%, 
+    oklch(60% 0.15 280) 60%, 
+    transparent 100%
+  );
+  opacity: 0.75;
+}
+
+.heroContent {
+  flex: 1;
+}
+
+.heroContent h1 {
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1.1;
+  background: linear-gradient(135deg, 
+    var(--color-text-heading) 40%, 
+    var(--color-accent-primary) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 40px oklch(68% 0.22 var(--hue-orange) / 0.05);
+}
+
+.statsGrid {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.statCard {
+  padding: var(--space-3) var(--space-4);
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-interactive);
+  box-shadow: var(--shadow-ambient);
+  transition: transform var(--duration-normal) var(--ease-spring),
+              border-color var(--duration-normal) var(--ease-smooth),
+              box-shadow var(--duration-normal) var(--ease-smooth);
+}
+
+.statCard:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-border-glow);
+  box-shadow: var(--shadow-glow-volt), var(--shadow-card-hover);
+}
+
+.statVal {
+  font-size: 1.85rem;
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-accent-primary);
+  line-height: 1;
+  text-shadow: 0 0 12px oklch(68% 0.22 var(--hue-orange) / 0.35);
+}
+
+.statLabel {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  font-weight: var(--font-weight-bold);
+  margin-top: var(--space-1);
+}
+
+.liveSection {
+  margin-bottom: var(--space-8);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.sectionHeader h2 {
+  font-size: 1.35rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.liveTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-accent-primary);
+  border-radius: var(--radius-badge);
+  box-shadow: 0 0 10px var(--color-accent-primary);
+  animation: pulseGlow 2s infinite;
+}
+
+.liveGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-4);
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 oklch(68% 0.22 var(--hue-orange) / 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 8px oklch(68% 0.22 var(--hue-orange) / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 oklch(68% 0.22 var(--hue-orange) / 0);
+  }
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-5);
+    gap: var(--space-5);
+  }
+  
+  .statsGrid {
+    width: 100%;
+  }
+  
+  .statCard {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--space-10) var(--space-6);
+  border-radius: var(--radius-card);
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--color-border-glass);
+  margin-top: var(--space-4);
+}
+
+.emptyStateTitle {
+  font-size: 1.05rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.emptyStateText {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+  gap: var(--space-4);
+}
+
+.loadingText {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+

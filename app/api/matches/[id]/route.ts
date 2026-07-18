@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { readDB, writeDB, Match, MatchScore } from '../../../../lib/db';
-import { getMatchWinner, propagateBracketWinner } from '../../../../lib/tournamentUtils';
+import { getMatchWinner, propagateBracketWinner, updateEloRatings } from '../../../../lib/tournamentUtils';
 
 export async function PUT(
   request: Request,
@@ -118,6 +118,9 @@ export async function PUT(
 
             t1Obj.playerIds.forEach(id => updatePlayerStats(id, team1Won));
             t2Obj.playerIds.forEach(id => updatePlayerStats(id, !team1Won));
+
+            // Calculate and update Elo Ratings
+            updateEloRatings(db.players, t1Obj.playerIds, t2Obj.playerIds, team1Won);
           }
         }
       } else {

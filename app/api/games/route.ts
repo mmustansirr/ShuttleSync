@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { readDB, writeDB, SocialMatch } from '../../../lib/db';
-import { generateId } from '../../../lib/tournamentUtils';
+import { generateId, updateEloRatings } from '../../../lib/tournamentUtils';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
@@ -12,7 +14,9 @@ export async function GET() {
       await writeDB(db);
     }
     
-    return NextResponse.json(db.sessions);
+    return NextResponse.json(db.sessions, {
+      headers: { 'Cache-Control': 'no-store, max-age=0, must-revalidate' }
+    });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch social session data' }, { status: 500 });
   }
@@ -191,6 +195,9 @@ export async function POST(request: Request) {
 
         match.team1Players.forEach(id => updatePlayerStats(id, team1Won));
         match.team2Players.forEach(id => updatePlayerStats(id, !team1Won));
+
+        // Calculate and update Elo Ratings
+        updateEloRatings(db.players, match.team1Players, match.team2Players, team1Won);
       }
 
       await writeDB(db);

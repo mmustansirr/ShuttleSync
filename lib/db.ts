@@ -7,7 +7,7 @@ const REDIS_KEY = 'shuttlesync:db';
 export interface Player {
   id: string;
   name: string;
-  rating: number; // 1 to 5 stars
+  rating: number; // Elo rating (e.g. 1200)
   stats: {
     played: number;
     wins: number;
@@ -142,7 +142,19 @@ export async function readDB(): Promise<DatabaseSchema> {
 
     const data = await res.json();
     if (data && data.result) {
-      return JSON.parse(data.result);
+      const db = JSON.parse(data.result) as DatabaseSchema;
+      if (db.players) {
+        db.players = db.players.map(player => {
+          if (player.rating >= 1 && player.rating <= 5) {
+            player.rating = 800 + (player.rating - 1) * 200;
+          }
+          if (player.rating === undefined || player.rating === null) {
+            player.rating = 1200;
+          }
+          return player;
+        });
+      }
+      return db;
     }
     
     // Key doesn't exist yet, initialize it

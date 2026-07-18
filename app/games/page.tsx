@@ -229,20 +229,28 @@ export default function SocialPlayPage() {
     <div className={styles.placeholderContainer}>
       <div className={styles.shuttleGlowContainer}>
         <div className={styles.glowRing}></div>
-        <Activity className={styles.glowingIcon} size={48} />
+        <img src="/icons/icon-192x192.png" alt="ShuttleSync Logo" className={styles.logoImage} />
       </div>
       
       <div className={`${styles.placeholderCard} glass animate-slide`}>
-        <span className={styles.placeholderSubtitle}>Syncing... ⚡</span>
+        <span className={styles.placeholderSubtitle}>Coming Soon ⚡</span>
         <h2 className={styles.placeholderTitle}>Social Pairing Lab</h2>
         
         <p className={styles.placeholderDescription}>
-          Matchmaking algorithms are in the lab. Smart pairings coming soon! 🏸
+          I am building smart matchmaking tools to pair players for casual social games automatically! This feature is under construction and will be fully ready in a future update. 🏸
         </p>
 
-        <Link href="/tournaments" className={`btn btn-primary ${styles.ctaBtn}`}>
+        <Link href="/tournaments" className={`btn btn-primary ${styles.ctaBtn}`} style={{ marginBottom: '12px' }}>
           Go to Tournaments
         </Link>
+
+        <div className={styles.creditsSection}>
+          Handcrafted with ❤️ by <strong>Mustansir</strong>.
+          <br />
+          Love using the app? Have feature ideas or bug reports?
+          <br />
+          Let's talk! ✉️ <a href="mailto:mustansirpratabgad@gmail.com" className={styles.creditsLink}>mustansirpratabgad@gmail.com</a>
+        </div>
       </div>
     </div>
   );

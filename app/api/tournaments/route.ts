@@ -2,11 +2,15 @@ import { NextResponse } from 'next/server';
 import { readDB, writeDB, Tournament, Stage, Group, Team, StagePlan } from '../../../lib/db';
 import { generateId, generateRoundRobinMatches, generateKnockoutBracket } from '../../../lib/tournamentUtils';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const db = await readDB();
     // Return summary of tournaments
-    return NextResponse.json(db.tournaments);
+    return NextResponse.json(db.tournaments, {
+      headers: { 'Cache-Control': 'no-store, max-age=0, must-revalidate' }
+    });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch tournaments' }, { status: 500 });
   }

@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { UserPlus, Trash2, Shuffle, ArrowRightLeft, Star, Users } from 'lucide-react';
+import { UserPlus, Trash2, Shuffle, ArrowRightLeft, Star, Users, Info } from 'lucide-react';
 import { Player, Team } from '../../lib/db';
 import { getAdminPin, getAuthHeaders } from '../../lib/auth';
 import { useToast } from '../../components/Toast';
 import { useConfirm } from '../../components/ConfirmDialog';
+import { getPlayerTier, eloToStars } from '../../lib/tournamentUtils';
 import styles from './page.module.css';
 
 export default function PlayersPage() {
@@ -13,11 +14,11 @@ export default function PlayersPage() {
   const { confirm } = useConfirm();
   const [players, setPlayers] = useState<Player[]>([]);
   const [name, setName] = useState('');
-  const [rating, setRating] = useState(3);
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   
   // Auth state
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   // View states
   const [activeView, setActiveView] = useState<'directory' | 'sandbox-select' | 'sandbox-results'>('directory');
@@ -62,14 +63,13 @@ export default function PlayersPage() {
       const res = await fetch('/api/players', {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ name, rating })
+        body: JSON.stringify({ name })
       });
       if (res.ok) {
         const newPlayer = await res.json();
         setPlayers([...players, newPlayer]);
         setSelectedPlayers([...selectedPlayers, newPlayer.id]);
         setName('');
-        setRating(3);
         setIsAddModalOpen(false);
         showToast(`Player "${newPlayer.name}" added successfully!`, 'success');
       } else {
@@ -138,6 +138,14 @@ export default function PlayersPage() {
       return;
     }
 
+    if (mode === 'balanced') {
+      const allUnrated = activeList.every(p => p.stats.played === 0);
+      if (allUnrated) {
+        showToast('Cannot generate balanced teams: all selected players are unrated (0 matches played). Run a tournament or play matches to generate ratings first!', 'warning');
+        return;
+      }
+    }
+
     let list = [...activeList];
     if (mode === 'random') {
       // Shuffling list randomly using Fisher-Yates algorithm
@@ -147,7 +155,23 @@ export default function PlayersPage() {
       }
     } else {
       // Sort by rating for balanced pairing
-      list.sort((a, b) => b.rating - a.rating);
+      // Treat unrated players as having the system-wide average rating of rated players
+      const ratedPlayers = players.filter(p => p.stats.played > 0);
+      const avgSystemRating = ratedPlayers.length > 0 
+        ? ratedPlayers.reduce((sum, p) => sum + p.rating, 0) / ratedPlayers.length 
+        : 1200;
+
+      const listWithTempRatings = list.map(p => ({
+        ...p,
+        tempRating: p.stats.played === 0 ? avgSystemRating : p.rating
+      }));
+
+      listWithTempRatings.sort((a, b) => b.tempRating - a.tempRating);
+      
+      list = listWithTempRatings.map(p => {
+        const { tempRating, ...originalPlayer } = p;
+        return originalPlayer;
+      });
     }
 
     const teams: Team[] = [];
@@ -261,18 +285,26 @@ export default function PlayersPage() {
     }
   };
 
-  const getTeamRating = (team: Team): number => {
+  const getTeamAvgElo = (team: Team): number => {
     const p1 = players.find(p => p.id === team.playerIds[0]);
     const p2 = players.find(p => p.id === team.playerIds[1]);
-    const r1 = p1 ? p1.rating : 0;
-    const r2 = p2 ? p2.rating : 0;
+    const r1 = p1 ? p1.rating : 1200;
+    const r2 = p2 ? p2.rating : 1200;
     return (r1 + r2) / 2;
   };
 
   const sortedPlayers = [...players].sort((a, b) => {
+    const aRated = a.stats.played > 0;
+    const bRated = b.stats.played > 0;
+    
+    // Put rated players first, unrated players at the very bottom
+    if (aRated !== bRated) {
+      return aRated ? -1 : 1;
+    }
+
+    if (b.rating !== a.rating) return b.rating - a.rating;
     if (b.stats.wins !== a.stats.wins) return b.stats.wins - a.stats.wins;
-    if (a.stats.losses !== b.stats.losses) return a.stats.losses - b.stats.losses;
-    return b.stats.played - a.stats.played;
+    return a.stats.losses - b.stats.losses;
   });
 
   return (
@@ -299,9 +331,8 @@ export default function PlayersPage() {
             <h2>Players Directory</h2>
             {isAdmin && (
               <button 
-                className="btn btn-primary" 
+                className={`btn btn-primary ${styles.addPlayerBtn}`} 
                 onClick={() => setIsAddModalOpen(true)}
-                style={{ height: '38px', padding: '0 16px', fontSize: '0.85rem' }}
               >
                 <UserPlus size={16} /> Add Player
               </button>
@@ -315,7 +346,16 @@ export default function PlayersPage() {
                 <tr>
                   <th style={{ width: '50px', textAlign: 'center' }}>Pos</th>
                   <th>Player</th>
-                  <th style={{ textAlign: 'center' }}>Rating</th>
+                  <th style={{ textAlign: 'center' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', justifyContent: 'center', width: '100%' }}>
+                      Rating
+                      <Info 
+                        size={14} 
+                        style={{ cursor: 'pointer', color: 'var(--text-secondary)' }}
+                        onClick={() => setIsInfoModalOpen(true)}
+                      />
+                    </div>
+                  </th>
                   <th style={{ textAlign: 'center' }}>P</th>
                   <th style={{ textAlign: 'center' }}>W</th>
                   <th style={{ textAlign: 'center' }}>L</th>
@@ -336,7 +376,18 @@ export default function PlayersPage() {
                         <span className={styles.winRateSubText}>Win Rate: {wr}%</span>
                       </td>
                       <td style={{ textAlign: 'center' }}>
-                        <span className={styles.ratingBadge}>{player.rating}★</span>
+                        {player.stats.played === 0 ? (
+                          <span className="rating-badge-unrated">New</span>
+                        ) : (
+                          <div className="rating-display-container">
+                            <span className={`rating-tier-badge ${getPlayerTier(player.rating).class}`}>
+                              {getPlayerTier(player.rating).emoji} {getPlayerTier(player.rating).name}
+                            </span>
+                            <span className="rating-elo-text">
+                              {player.rating} Elo
+                            </span>
+                          </div>
+                        )}
                       </td>
                       <td style={{ textAlign: 'center' }}>{player.stats.played}</td>
                       <td style={{ textAlign: 'center', color: 'var(--primary)' }}>{player.stats.wins}</td>
@@ -394,36 +445,51 @@ export default function PlayersPage() {
             {/* Checkbox selector - Full height, ample breathing space */}
             <div className={styles.selectPlayersWrapperFull}>
               <div className={styles.checkboxGridFull}>
-                {players.map(p => (
-                  <label key={p.id} className={`${styles.checkboxLabel} ${selectedPlayers.includes(p.id) ? styles.checked : ''}`}>
-                    <input
-                      type="checkbox"
-                      checked={selectedPlayers.includes(p.id)}
-                      onChange={() => toggleSelectPlayer(p.id)}
-                    />
-                    <span className={styles.playerText}>{p.name}</span>
-                    <span className={styles.playerRating}>{p.rating}★</span>
-                  </label>
-                ))}
+                {players.map(p => {
+                  const tier = getPlayerTier(p.rating);
+                  return (
+                    <label key={p.id} className={`${styles.checkboxLabel} ${selectedPlayers.includes(p.id) ? styles.checked : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={selectedPlayers.includes(p.id)}
+                        onChange={() => toggleSelectPlayer(p.id)}
+                      />
+                      <span className={styles.playerText}>{p.name}</span>
+                      {p.stats.played === 0 ? (
+                        <span className="rating-badge-unrated" style={{ marginLeft: 'auto' }}>New</span>
+                      ) : (
+                        <span className={styles.playerRating} style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          {tier.emoji} {p.rating} Elo
+                        </span>
+                      )}
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
-            <div className={styles.actionButtonContainer}>
-              <button
-                onClick={() => handleGenerateTeams('balanced')}
-                className="btn btn-primary"
-                disabled={selectedPlayers.length < 2}
-              >
-                <Star size={16} /> Balanced Teams
-              </button>
-              <button
-                onClick={() => handleGenerateTeams('random')}
-                className="btn btn-secondary"
-                disabled={selectedPlayers.length < 2}
-              >
-                <Shuffle size={16} /> Random Teams
-              </button>
-            </div>
+            {(() => {
+              const selectedPlayerObjs = players.filter(p => selectedPlayers.includes(p.id));
+              const allSelectedUnrated = selectedPlayerObjs.length >= 2 && selectedPlayerObjs.every(p => p.stats.played === 0);
+              return (
+                <div className={styles.actionButtonContainer}>
+                  <button
+                    onClick={() => handleGenerateTeams('balanced')}
+                    className={`btn btn-primary ${allSelectedUnrated ? 'btn-inactive' : ''}`}
+                    disabled={selectedPlayers.length < 2}
+                  >
+                    <Star size={16} /> Balanced Teams
+                  </button>
+                  <button
+                    onClick={() => handleGenerateTeams('random')}
+                    className="btn btn-secondary"
+                    disabled={selectedPlayers.length < 2}
+                  >
+                    <Shuffle size={16} /> Random Teams
+                  </button>
+                </div>
+              );
+            })()}
             <p className={styles.balancingTagline}>
               Balanced pairs stronger players with weaker players. Random shuffles partners completely by chance.
             </p>
@@ -473,7 +539,7 @@ export default function PlayersPage() {
 
               <div className={styles.teamsList}>
                 {generatedTeams.map((team, idx) => {
-                  const avgRating = getTeamRating(team);
+                  const avgElo = getTeamAvgElo(team);
                   const p1 = players.find(player => player.id === team.playerIds[0]);
                   const p2 = players.find(player => player.id === team.playerIds[1]);
                   const isSwapping1 = swapId === team.playerIds[0];
@@ -483,7 +549,7 @@ export default function PlayersPage() {
                     <div key={team.id} className={styles.teamCard}>
                       <div className={styles.teamCardHeader}>
                         <span className={styles.teamNumber}>Team {idx + 1}</span>
-                        <span className={styles.avgRatingBadge}>Avg: {avgRating.toFixed(1)}★</span>
+                        <span className={styles.avgRatingBadge}>Avg: {Math.round(avgElo)} Elo ({eloToStars(avgElo).toFixed(1)}★)</span>
                       </div>
                       
                       <div className={styles.teamPlayersHorizontal}>
@@ -492,7 +558,11 @@ export default function PlayersPage() {
                           onClick={() => isAdmin && handleSwapClick(team.playerIds[0])}
                         >
                           <span className={styles.playerName}>{p1?.name}</span>
-                          <span className={styles.playerRating}>{p1?.rating}★</span>
+                          {p1?.stats.played === 0 ? (
+                            <span className="rating-badge-unrated" style={{ scale: '0.8', padding: '1px 6px', margin: '0' }}>New</span>
+                          ) : (
+                            <span className={styles.playerRating}>{p1 ? `${p1.rating} (${eloToStars(p1.rating).toFixed(1)}★)` : ''}</span>
+                          )}
                         </div>
                         
                         <span className={styles.handshakeIcon}>🤝</span>
@@ -502,7 +572,11 @@ export default function PlayersPage() {
                           onClick={() => isAdmin && handleSwapClick(team.playerIds[1])}
                         >
                           <span className={styles.playerName}>{p2?.name}</span>
-                          <span className={styles.playerRating}>{p2?.rating}★</span>
+                          {p2?.stats.played === 0 ? (
+                            <span className="rating-badge-unrated" style={{ scale: '0.8', padding: '1px 6px', margin: '0' }}>New</span>
+                          ) : (
+                            <span className={styles.playerRating}>{p2 ? `${p2.rating} (${eloToStars(p2.rating).toFixed(1)}★)` : ''}</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -526,7 +600,11 @@ export default function PlayersPage() {
                           onClick={() => isAdmin && handleSwapClick(p.id)}
                         >
                           <span className={styles.playerName}>{p.name}</span>
-                          <span className={styles.playerRating}>{p.rating}★</span>
+                          {p.stats.played === 0 ? (
+                            <span className="rating-badge-unrated" style={{ scale: '0.8', padding: '1px 6px', margin: '0' }}>New</span>
+                          ) : (
+                            <span className={styles.playerRating}>{p.rating} ({eloToStars(p.rating).toFixed(1)}★)</span>
+                          )}
                         </div>
                       );
                     })}
@@ -556,27 +634,6 @@ export default function PlayersPage() {
                   autoFocus
                 />
               </div>
-              
-              <div className="form-group">
-                <label className="form-label">Skill Rating</label>
-                <div className={styles.ratingSelect} style={{ justifyContent: 'center' }}>
-                  <div className={styles.starWrapper}>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        type="button"
-                        key={star}
-                        className={styles.starBtn}
-                        onClick={() => setRating(star)}
-                      >
-                        <Star
-                          size={20}
-                          className={star <= rating ? styles.filledStar : styles.emptyStar}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
 
               <div className={styles.modalButtons}>
                 <button
@@ -584,7 +641,6 @@ export default function PlayersPage() {
                   onClick={() => {
                     setIsAddModalOpen(false);
                     setName('');
-                    setRating(3);
                   }}
                   className="btn btn-secondary"
                   style={{ flex: 1 }}
@@ -601,6 +657,42 @@ export default function PlayersPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Info Modal Overlay */}
+      {isInfoModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setIsInfoModalOpen(false)}>
+          <div className={styles.modal} style={{ maxWidth: '400px' }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>🏸 How Ratings Work</h3>
+            <div style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-primary)', margin: '16px 0', textAlign: 'left' }}>
+              <p style={{ marginBottom: '12px' }}>
+                <strong>What is Elo?</strong><br />
+                It is a score that shows how good you are at badminton! Everyone starts with 1200 points.
+              </p>
+              <p style={{ marginBottom: '12px' }}>
+                <strong>How does it change?</strong><br />
+                - <strong>Win a match?</strong> Your score goes up! 📈<br />
+                - <strong>Lose a match?</strong> Your score goes down. 📉
+              </p>
+              <p style={{ marginBottom: '12px' }}>
+                <strong>Beat the best:</strong><br />
+                If you beat a player with a much higher score, you get a lot of bonus points! If you beat a beginner, you only get a few points.
+              </p>
+              <p>
+                <strong>First time?</strong><br />
+                New players are marked as <strong>New</strong> and stay at the bottom of the list until they play their first real game.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsInfoModalOpen(false)}
+              className="btn btn-primary"
+              style={{ width: '100%' }}
+            >
+              Got it!
+            </button>
           </div>
         </div>
       )}

@@ -361,3 +361,83 @@ export function getTournamentWinner(tournament: Tournament): Team | null {
   }
   return null;
 }
+
+export interface TierInfo {
+  name: string;
+  emoji: string;
+  class: string;
+}
+
+export function getPlayerTier(elo: number): TierInfo {
+  if (elo < 1000) return { name: 'Bronze', emoji: '🥉', class: 'tier-bronze' };
+  if (elo < 1200) return { name: 'Silver', emoji: '🥈', class: 'tier-silver' };
+  if (elo < 1400) return { name: 'Gold', emoji: '🥇', class: 'tier-gold' };
+  if (elo < 1600) return { name: 'Platinum', emoji: '💎', class: 'tier-platinum' };
+  if (elo < 1800) return { name: 'Diamond', emoji: '🏆', class: 'tier-diamond' };
+  return { name: 'Master', emoji: '👑', class: 'tier-master' };
+}
+
+export function eloToStars(elo: number): number {
+  const stars = 1.0 + (elo - 800) / 200;
+  return Math.min(5.0, Math.max(1.0, stars));
+}
+
+/**
+ * Updates individual player Elo ratings using a hybrid averaging doubles Elo algorithm.
+ */
+export function updateEloRatings(
+  players: Player[],
+  team1PlayerIds: string[],
+  team2PlayerIds: string[],
+  team1Won: boolean
+): void {
+  if (team1PlayerIds.length === 0 || team2PlayerIds.length === 0) return;
+
+  // Calculate team ratings as average of individual ratings
+  const getTeamAvgElo = (ids: string[]) => {
+    let sum = 0;
+    let count = 0;
+    ids.forEach(id => {
+      const p = players.find(player => player.id === id);
+      if (p) {
+        sum += p.rating;
+        count++;
+      }
+    });
+    return count > 0 ? sum / count : 1200;
+  };
+
+  const r1 = getTeamAvgElo(team1PlayerIds);
+  const r2 = getTeamAvgElo(team2PlayerIds);
+
+  // Expected score for Team 1
+  const E1 = 1 / (1 + Math.pow(10, (r2 - r1) / 400));
+  const E2 = 1 - E1;
+
+  // Actual outcomes
+  const S1 = team1Won ? 1 : 0;
+  const S2 = team1Won ? 0 : 1;
+
+  // K-factor
+  const K = 32;
+
+  // Rating changes
+  const delta1 = K * (S1 - E1);
+  const delta2 = K * (S2 - E2);
+
+  // Update players on Team 1
+  team1PlayerIds.forEach(id => {
+    const player = players.find(p => p.id === id);
+    if (player) {
+      player.rating = Math.round(player.rating + delta1);
+    }
+  });
+
+  // Update players on Team 2
+  team2PlayerIds.forEach(id => {
+    const player = players.find(p => p.id === id);
+    if (player) {
+      player.rating = Math.round(player.rating + delta2);
+    }
+  });
+}

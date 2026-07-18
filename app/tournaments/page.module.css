@@ -898,6 +898,76 @@
   font-size: 0.65rem;
 }
 
+/* Empty State Styling */
+.emptyStateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px var(--space-5);
+  border: 1px dashed var(--color-border-glass);
+  background-color: var(--color-bg-glass);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  box-shadow: var(--shadow-ambient);
+  margin-top: 10px;
+}
+
+.emptyStateIcon {
+  color: var(--color-accent-primary);
+  margin-bottom: var(--space-4);
+  opacity: 0.8;
+  filter: drop-shadow(0 0 12px oklch(68% 0.22 var(--hue-orange) / 0.3));
+}
+
+.emptyStateContainer h2 {
+  font-size: 1.4rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+  margin-bottom: var(--space-2);
+}
+
+.emptyStateContainer p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+/* Directory Header Layout */
+.directoryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.newTourneyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .directoryHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    text-align: center;
+  }
+  .newTourneyBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 
 
 

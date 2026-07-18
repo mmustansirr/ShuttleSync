@@ -2,10 +2,14 @@ import { NextResponse } from 'next/server';
 import { readDB, writeDB, Player } from '../../../lib/db';
 import { generateId } from '../../../lib/tournamentUtils';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const db = await readDB();
-    return NextResponse.json(db.players);
+    return NextResponse.json(db.players, {
+      headers: { 'Cache-Control': 'no-store, max-age=0, must-revalidate' }
+    });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch players' }, { status: 500 });
   }
@@ -19,16 +23,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized: Invalid Admin PIN' }, { status: 401 });
     }
 
-    const { name, rating } = await request.json();
-    if (!name || rating < 1 || rating > 5) {
-      return NextResponse.json({ error: 'Invalid name or rating' }, { status: 400 });
+    const { name } = await request.json();
+    if (!name) {
+      return NextResponse.json({ error: 'Invalid name' }, { status: 400 });
     }
 
     const db = await readDB();
     const newPlayer: Player = {
       id: `p-${generateId()}`,
       name: name.trim(),
-      rating: Number(rating),
+      rating: 1200,
       stats: { played: 0, wins: 0, losses: 0 }
     };
 

@@ -724,30 +724,6 @@ export default function TournamentDetailPage({ params }: PageProps) {
                     </div>
                   )}
 
-                  <div className={styles.dangerZone}>
-                    <h3>Danger Zone</h3>
-                    <button
-                      onClick={async () => {
-                        const confirmed = await confirm({
-                          title: 'Delete Tournament Permanently',
-                          message: 'Are you sure you want to delete this tournament permanently? This action CANNOT be undone.',
-                          confirmText: 'Delete Permanently',
-                          cancelText: 'Cancel'
-                        });
-                        if (confirmed) {
-                          fetch(`/api/tournaments/${tournamentId}`, {
-                            method: 'PUT',
-                            headers: getAuthHeaders(),
-                            body: JSON.stringify({ action: 'delete' })
-                          }).then(() => router.push('/tournaments'));
-                        }
-                      }}
-                      className="btn btn-danger"
-                      style={{ padding: '8px 16px', fontSize: '0.85rem' }}
-                    >
-                      Delete Tournament
-                    </button>
-                  </div>
                 </div>
               ) : (
                 <div style={{ padding: '16px 0' }}>
@@ -756,6 +732,35 @@ export default function TournamentDetailPage({ params }: PageProps) {
                   </p>
                 </div>
               )}
+
+              {/* Danger Zone: Always show this at the bottom of the admin panel */}
+              <div className={styles.dangerZone} style={{ marginTop: '24px', borderTop: '1px solid var(--color-border-glass)', paddingTop: '20px' }}>
+                <h3 style={{ color: 'var(--color-status-danger)', fontSize: '1rem', marginBottom: '8px' }}>Danger Zone</h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '12px' }}>
+                  Deleting this tournament is permanent. Player Elo ratings calculated during its matches will remain unchanged and will NOT be reverted.
+                </p>
+                <button
+                  onClick={async () => {
+                    const confirmed = await confirm({
+                      title: 'Delete Tournament Permanently',
+                      message: 'Are you sure you want to delete this tournament permanently? This action CANNOT be undone. Note: Any player Elo rating adjustments calculated during matches will remain active and will NOT be reverted.',
+                      confirmText: 'Delete Permanently',
+                      cancelText: 'Cancel'
+                    });
+                    if (confirmed) {
+                      fetch(`/api/tournaments/${tournamentId}`, {
+                        method: 'PUT',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({ action: 'delete' })
+                      }).then(() => router.push('/tournaments'));
+                    }
+                  }}
+                  className="btn btn-danger"
+                  style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                >
+                  Delete Tournament
+                </button>
+              </div>
             </div>
           </div>
         )}

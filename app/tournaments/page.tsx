@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Trophy, Clock, Plus, Shuffle, ArrowRight, LayoutDashboard, Star } from 'lucide-react';
+import { Trophy, Clock, Plus, Shuffle, ArrowRight, LayoutDashboard, Star, History, ArrowLeft } from 'lucide-react';
 import { Tournament, Player, Team } from '../../lib/db';
 import { getAdminPin, getAuthHeaders } from '../../lib/auth';
 import { useToast } from '../../components/Toast';
 import styles from './page.module.css';
 import PerfectNumberInput from '../../components/PerfectNumberInput';
-import { getTournamentWinner } from '../../lib/tournamentUtils';
+import { getTournamentWinner, calculateStandings, getPlayerTier, eloToStars } from '../../lib/tournamentUtils';
 
 export default function TournamentsPage() {
   const { showToast } = useToast();
@@ -19,8 +19,8 @@ export default function TournamentsPage() {
   // Auth State
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // View tabs
   const [activeView, setActiveView] = useState<'dashboard' | 'setup'>('dashboard');
+  const [subTab, setSubTab] = useState<'active' | 'completed'>('active');
   const [isCreating, setIsCreating] = useState(false);
 
   // Form states
@@ -101,11 +101,11 @@ export default function TournamentsPage() {
     setSelectedPlayers([]);
   };
 
-  const getTeamRating = (team: Team): number => {
+  const getTeamAvgElo = (team: Team): number => {
     const p1 = players.find(p => p.id === team.playerIds[0]);
     const p2 = players.find(p => p.id === team.playerIds[1]);
-    const r1 = p1 ? p1.rating : 0;
-    const r2 = p2 ? p2.rating : 0;
+    const r1 = p1 ? p1.rating : 1200;
+    const r2 = p2 ? p2.rating : 1200;
     return (r1 + r2) / 2;
   };
 
@@ -114,6 +114,14 @@ export default function TournamentsPage() {
     if (activeList.length < 2) {
       showToast('Select at least 2 players to generate teams.', 'warning');
       return;
+    }
+
+    if (mode === 'balanced') {
+      const allUnrated = activeList.every(p => p.stats.played === 0);
+      if (allUnrated) {
+        showToast('Cannot generate balanced teams: all selected players are unrated (0 matches played). Run a tournament or play matches to generate ratings first!', 'warning');
+        return;
+      }
     }
 
     let list = [...activeList];
@@ -125,7 +133,23 @@ export default function TournamentsPage() {
       }
     } else {
       // Sort by rating for balanced pairing
-      list.sort((a, b) => b.rating - a.rating);
+      // Treat unrated players as having the system-wide average rating of rated players
+      const ratedPlayers = players.filter(p => p.stats.played > 0);
+      const avgSystemRating = ratedPlayers.length > 0 
+        ? ratedPlayers.reduce((sum, p) => sum + p.rating, 0) / ratedPlayers.length 
+        : 1200;
+
+      const listWithTempRatings = list.map(p => ({
+        ...p,
+        tempRating: p.stats.played === 0 ? avgSystemRating : p.rating
+      }));
+
+      listWithTempRatings.sort((a, b) => b.tempRating - a.tempRating);
+      
+      list = listWithTempRatings.map(p => {
+        const { tempRating, ...originalPlayer } = p;
+        return originalPlayer;
+      });
     }
 
     const teams: Team[] = [];
@@ -372,29 +396,49 @@ export default function TournamentsPage() {
   };
 
 
+  const filteredTournaments = tournaments.filter(t => 
+    subTab === 'active' ? t.status === 'active' : t.status === 'completed'
+  );
+
   return (
     <div className="page-container animate-slide">
-      {/* Tab Switcher - Only show if Admin */}
-      {isAdmin && (
-        <div className="segment-header">
-          <button
-            className={`segment-btn ${activeView === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveView('dashboard')}
-          >
-            <LayoutDashboard size={16} /> Active Tournaments
-          </button>
-          <button
-            className={`segment-btn ${activeView === 'setup' ? 'active' : ''}`}
-            onClick={() => setActiveView('setup')}
-          >
-            <Plus size={16} /> New Setup
-          </button>
-        </div>
+      {/* Tournaments List View Header Controls */}
+      {activeView === 'dashboard' && (
+        <>
+          {/* Full-width Tab Switcher */}
+          <div className="segment-header">
+            <button
+              className={`segment-btn ${subTab === 'active' ? 'active' : ''}`}
+              onClick={() => setSubTab('active')}
+            >
+              <Trophy size={16} /> Active Tournaments
+            </button>
+            <button
+              className={`segment-btn ${subTab === 'completed' ? 'active' : ''}`}
+              onClick={() => setSubTab('completed')}
+            >
+              <History size={16} /> Completed Tournaments
+            </button>
+          </div>
+
+          {/* Page Sub-Header matching Players Directory */}
+          <div className={styles.directoryHeader}>
+            <h2>Tournaments</h2>
+            {isAdmin && tournaments.length > 0 && (
+              <button
+                className={`btn btn-primary ${styles.newTourneyBtn}`}
+                onClick={() => setActiveView('setup')}
+              >
+                <Plus size={16} /> New Tournament
+              </button>
+            )}
+          </div>
+        </>
       )}
 
       {activeView === 'dashboard' ? (
         <div className={styles.tournamentsList}>
-          {tournaments.map((t) => {
+          {filteredTournaments.map((t) => {
             const isActive = t.status === 'active';
             const isCompleted = t.status === 'completed';
             const currentStage = t.stages[t.currentStageIndex];
@@ -485,14 +529,51 @@ export default function TournamentsPage() {
               </Link>
             );
           })}
-          {tournaments.length === 0 && (
-            <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>
-              No active tournaments.
-            </div>
+
+          {/* Empty States */}
+          {filteredTournaments.length === 0 && (
+            subTab === 'active' ? (
+              isAdmin ? (
+                <div className={styles.emptyStateContainer}>
+                  <Trophy size={48} className={styles.emptyStateIcon} />
+                  <h2>No Active Tournaments</h2>
+                  <p style={{ margin: '8px 0 20px 0' }}>Set up a new tournament with balanced teams, brackets, and live scoring.</p>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => setActiveView('setup')}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '0.95rem' }}
+                  >
+                    <Plus size={18} /> Create New Tournament
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.emptyStateContainer}>
+                  <Trophy size={48} className={styles.emptyStateIcon} style={{ opacity: 0.4 }} />
+                  <h2>No Active Tournaments</h2>
+                  <p style={{ margin: '8px 0 0 0' }}>Stay tuned! Ask your group administrator to start a new tournament.</p>
+                </div>
+              )
+            ) : (
+              <div className={styles.emptyStateContainer}>
+                <History size={48} className={styles.emptyStateIcon} style={{ opacity: 0.4 }} />
+                <h2>No Completed Tournaments</h2>
+                <p style={{ margin: '8px 0 0 0' }}>Finished tournaments will show up here as a hall of fame!</p>
+              </div>
+            )
           )}
         </div>
       ) : (
         <div className={`${styles.card} glass`}>
+          <div style={{ marginBottom: '20px' }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setActiveView('dashboard')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', fontSize: '0.8rem', height: '36px' }}
+            >
+              <ArrowLeft size={14} /> Back to Tournaments
+            </button>
+          </div>
           <form onSubmit={handleCreateTournament} className={styles.form}>
             <div className="form-group">
               <label className="form-label">Tournament Name</label>
@@ -528,40 +609,57 @@ export default function TournamentsPage() {
                   <button type="button" className={styles.smallLink} onClick={handleDeselectAll}>Clear</button>
                 </div>
               </div>
-              <div className={styles.checkboxGrid}>
-                {players.map(p => (
-                  <label key={p.id} className={`${styles.checkboxLabel} ${selectedPlayers.includes(p.id) ? styles.checked : ''}`}>
-                    <input
-                      type="checkbox"
-                      checked={selectedPlayers.includes(p.id)}
-                      onChange={() => toggleSelectPlayer(p.id)}
-                    />
-                    <span className={styles.playerText}>{p.name}</span>
-                    <span className={styles.playerRating}>{p.rating}★</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: '8px' }}>
-              <button
-                type="button"
-                onClick={() => handleGenerateTeams('balanced')}
-                className="btn btn-secondary"
-                style={{ flex: 1 }}
-                disabled={selectedPlayers.length < 2}
-              >
-                <Star size={14} /> Balanced Teams
-              </button>
-              <button
-                type="button"
-                onClick={() => handleGenerateTeams('random')}
-                className="btn btn-secondary"
-                style={{ flex: 1 }}
-                disabled={selectedPlayers.length < 2}
-              >
-                <Shuffle size={14} /> Random Teams
-              </button>
+              {(() => {
+                const selectedPlayerObjs = players.filter(p => selectedPlayers.includes(p.id));
+                const allSelectedUnrated = selectedPlayerObjs.length >= 2 && selectedPlayerObjs.every(p => p.stats.played === 0);
+                return (
+                  <>
+                    <div className={styles.checkboxGrid}>
+                      {players.map(p => {
+                        const tier = getPlayerTier(p.rating);
+                        return (
+                          <label key={p.id} className={`${styles.checkboxLabel} ${selectedPlayers.includes(p.id) ? styles.checked : ''}`}>
+                            <input
+                              type="checkbox"
+                              checked={selectedPlayers.includes(p.id)}
+                              onChange={() => toggleSelectPlayer(p.id)}
+                            />
+                            <span className={styles.playerText}>{p.name}</span>
+                            {p.stats.played === 0 ? (
+                              <span className="rating-badge-unrated" style={{ marginLeft: 'auto' }}>New</span>
+                            ) : (
+                              <span className={styles.playerRating} style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                {tier.emoji} {p.rating} Elo
+                              </span>
+                            )}
+                          </label>
+                        );
+                      })}
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleGenerateTeams('balanced')}
+                        className={`btn btn-secondary ${allSelectedUnrated ? 'btn-inactive' : ''}`}
+                        style={{ flex: 1 }}
+                        disabled={selectedPlayers.length < 2}
+                      >
+                        <Star size={14} /> Balanced Teams
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleGenerateTeams('random')}
+                        className="btn btn-secondary"
+                        style={{ flex: 1 }}
+                        disabled={selectedPlayers.length < 2}
+                      >
+                        <Shuffle size={14} /> Random Teams
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             {tempTeams.length > 0 && (
@@ -578,7 +676,7 @@ export default function TournamentsPage() {
                 
                 <div className={styles.teamsList}>
                   {tempTeams.map((team, idx) => {
-                    const avgRating = getTeamRating(team);
+                    const avgElo = getTeamAvgElo(team);
                     const p1 = players.find(player => player.id === team.playerIds[0]);
                     const p2 = players.find(player => player.id === team.playerIds[1]);
                     const isSwapping1 = swapId === team.playerIds[0];
@@ -600,7 +698,7 @@ export default function TournamentsPage() {
                             placeholder="Enter team name"
                             required
                           />
-                          <span className={styles.avgRatingBadge}>Avg: {avgRating.toFixed(1)}★</span>
+                          <span className={styles.avgRatingBadge}>Avg: {Math.round(avgElo)} Elo ({eloToStars(avgElo).toFixed(1)}★)</span>
                         </div>
                         <div className={styles.teamPlayersHorizontal}>
                           <div 
@@ -608,7 +706,11 @@ export default function TournamentsPage() {
                             onClick={() => handleSwapClick(team.playerIds[0])}
                           >
                             <span className={styles.playerName}>{p1?.name}</span>
-                            <span className={styles.playerRating}>{p1?.rating}★</span>
+                            {p1?.stats.played === 0 ? (
+                              <span className="rating-badge-unrated" style={{ scale: '0.8', padding: '1px 6px', margin: '0' }}>New</span>
+                            ) : (
+                              <span className={styles.playerRating}>{p1 ? `${p1.rating} (${eloToStars(p1.rating).toFixed(1)}★)` : ''}</span>
+                            )}
                           </div>
                           
                           <span className={styles.handshakeIcon}>🤝</span>
@@ -618,7 +720,11 @@ export default function TournamentsPage() {
                             onClick={() => handleSwapClick(team.playerIds[1])}
                           >
                             <span className={styles.playerName}>{p2?.name}</span>
-                            <span className={styles.playerRating}>{p2?.rating}★</span>
+                            {p2?.stats.played === 0 ? (
+                              <span className="rating-badge-unrated" style={{ scale: '0.8', padding: '1px 6px', margin: '0' }}>New</span>
+                            ) : (
+                              <span className={styles.playerRating}>{p2 ? `${p2.rating} (${eloToStars(p2.rating).toFixed(1)}★)` : ''}</span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -642,7 +748,11 @@ export default function TournamentsPage() {
                             onClick={() => handleSwapClick(p.id)}
                           >
                             <span className={styles.playerName}>{p.name}</span>
-                            <span className={styles.playerRating}>{p.rating}★</span>
+                            {p.stats.played === 0 ? (
+                              <span className="rating-badge-unrated" style={{ scale: '0.8', padding: '1px 6px', margin: '0' }}>New</span>
+                            ) : (
+                              <span className={styles.playerRating}>{p.rating} ({eloToStars(p.rating).toFixed(1)}★)</span>
+                            )}
                           </div>
                         );
                       })}

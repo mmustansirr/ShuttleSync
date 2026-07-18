@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { readDB, writeDB, Tournament, Stage, Team, Group } from '../../../../lib/db';
 import { generateId, calculateStandings, generateKnockoutBracket, generateRoundRobinMatches } from '../../../../lib/tournamentUtils';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -9,14 +11,23 @@ export async function GET(
   try {
     const { id } = await params;
     const db = await readDB();
+    console.log("API Fetching Tournament ID:", id);
+    console.log("Available Tournament IDs in DB:", db.tournaments?.map(t => t.id));
     const tournament = db.tournaments.find(t => t.id === id);
+    console.log("Found Tournament:", tournament ? tournament.name : "null");
 
     if (!tournament) {
-      return NextResponse.json({ error: 'Tournament not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Tournament not found' }, { 
+        status: 404,
+        headers: { 'Cache-Control': 'no-store, max-age=0, must-revalidate' }
+      });
     }
 
-    return NextResponse.json(tournament);
+    return NextResponse.json(tournament, {
+      headers: { 'Cache-Control': 'no-store, max-age=0, must-revalidate' }
+    });
   } catch (error) {
+    console.error("API GET Tournament Error:", error);
     return NextResponse.json({ error: 'Failed to fetch tournament' }, { status: 500 });
   }
 }

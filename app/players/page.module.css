@@ -932,9 +932,9 @@
 }
 
 .infoTiersList {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   margin-top: 4px;
   background: rgba(0, 0, 0, 0.2);
   padding: 8px 12px;

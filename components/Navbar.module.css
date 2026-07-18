@@ -25,7 +25,7 @@
   align-items: center;
   gap: var(--space-2);
   text-decoration: none;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: var(--font-weight-extrabold);
   color: var(--color-text-heading);
   letter-spacing: var(--letter-spacing-tight);
@@ -34,8 +34,8 @@
 }
 
 .logoImage {
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   border-radius: var(--radius-interactive);
   border: 1px solid var(--color-border-glass);
   background: var(--color-bg-canvas);
@@ -230,7 +230,12 @@
   }
 
   .logo {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+  }
+
+  .logoImage {
+    width: 31px;
+    height: 31px;
   }
 
   .controlBtn {

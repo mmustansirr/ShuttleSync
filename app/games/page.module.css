@@ -329,8 +329,16 @@
   justify-content: center;
   text-align: center;
   padding: 40px 24px;
-  min-height: 70vh;
+  min-height: 80vh;
   gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .placeholderContainer {
+    padding-top: 80px;   /* Avoid fixed header */
+    padding-bottom: 24px; /* Avoid doubling padding next to body bottom padding */
+    min-height: calc(100vh - 56px - 74px); /* Constrain to screen height */
+  }
 }
 
 .shuttleGlowContainer {
@@ -338,23 +346,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   margin-bottom: 8px;
 }
 
 .logoImage {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   z-index: 2;
   filter: drop-shadow(0 0 12px var(--primary-glow));
-  border-radius: 12px;
+  border-radius: 16px;
 }
 
 .glowRing {
   position: absolute;
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   border: 2px solid var(--secondary);
   animation: pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
@@ -425,13 +433,13 @@
   padding-top: 20px;
   border-top: 1px solid var(--color-border-glass);
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: rgba(245, 243, 255, 0.6);
   text-align: center;
   line-height: 1.6;
 }
 
 .creditsSection strong {
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .creditsLink {

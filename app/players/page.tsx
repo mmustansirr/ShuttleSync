@@ -346,86 +346,90 @@ export default function PlayersPage() {
           </div>
 
           {/* Directory Table */}
-          <div className={styles.card}>
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '50px', textAlign: 'center' }}>Pos</th>
-                  <th>Player</th>
-                  <th style={{ textAlign: 'center' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', justifyContent: 'center', width: '100%' }}>
-                      Rating
-                      <Info 
-                        size={14} 
-                        style={{ cursor: 'pointer', color: 'var(--text-secondary)' }}
-                        onClick={() => setIsInfoModalOpen(true)}
-                      />
-                    </div>
-                  </th>
-                  <th style={{ textAlign: 'center' }}>P</th>
-                  <th style={{ textAlign: 'center' }}>W</th>
-                  <th style={{ textAlign: 'center' }}>L</th>
-                  {isAdmin && <th style={{ width: '40px' }}></th>}
-                </tr>
-              </thead>
-              <tbody>
-                {sortedPlayers.map((player, idx) => {
-                  const total = player.stats.played;
-                  const wr = total > 0 ? Math.round((player.stats.wins / total) * 100) : 0;
-                  return (
-                    <tr key={player.id}>
-                      <td style={{ textAlign: 'center', fontWeight: 'bold', color: idx < 3 ? 'var(--primary)' : 'var(--text-secondary)' }}>
-                        {idx + 1}
-                      </td>
-                      <td style={{ fontWeight: '600' }}>
-                        <div>{player.name}</div>
-                        <span className={styles.winRateSubText}>Win Rate: {wr}%</span>
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        {player.stats.played === 0 ? (
-                          <span className="rating-badge-unrated">New</span>
-                        ) : (
-                          <div className="rating-display-container">
-                            <span className={`rating-tier-badge ${getPlayerTier(player.rating).class}`}>
-                              {getPlayerTier(player.rating).emoji} {getPlayerTier(player.rating).name}
-                            </span>
-                            <span className="rating-elo-text">
-                              {player.rating} Elo
-                            </span>
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ textAlign: 'center' }}>{player.stats.played}</td>
-                      <td style={{ textAlign: 'center', color: 'var(--primary)' }}>{player.stats.wins}</td>
-                      <td style={{ textAlign: 'center', color: 'var(--danger)' }}>{player.stats.losses}</td>
-                      {isAdmin && (
-                        <td style={{ textAlign: 'center' }}>
-                          <button
-                            onClick={() => handleDeletePlayer(player.id)}
-                            className={styles.deleteBtn}
-                            disabled={deletingPlayerId === player.id}
-                            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '32px', minHeight: '32px' }}
-                          >
-                            {deletingPlayerId === player.id ? (
-                              <span className="btn-spinner" style={{ width: '12px', height: '12px' }}></span>
-                            ) : (
-                              <Trash2 size={15} />
-                            )}
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })}
-                {players.length === 0 && (
+          <div className={styles.card} style={{ padding: 'var(--space-4) var(--space-2)' }}>
+            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%' }}>
+              <table className="custom-table">
+                <thead>
                   <tr>
-                    <td colSpan={isAdmin ? 7 : 6} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px' }}>
-                      No players registered.
-                    </td>
+                    <th style={{ width: '50px', textAlign: 'center' }}>Pos</th>
+                    <th>Player</th>
+                    <th style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', justifyContent: 'center', width: '100%' }}>
+                        Rating
+                        <Info 
+                          size={14} 
+                          style={{ cursor: 'pointer', color: 'var(--text-secondary)' }}
+                          onClick={() => setIsInfoModalOpen(true)}
+                        />
+                      </div>
+                    </th>
+                    <th style={{ textAlign: 'center' }}>P</th>
+                    <th style={{ textAlign: 'center' }}>W</th>
+                    <th style={{ textAlign: 'center' }}>L</th>
+                    {isAdmin && <th style={{ width: '40px' }}></th>}
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {sortedPlayers.map((player, idx) => {
+                    const total = player.stats.played;
+                    const wr = total > 0 ? Math.round((player.stats.wins / total) * 100) : 0;
+                    return (
+                      <tr key={player.id}>
+                        <td style={{ textAlign: 'center', fontWeight: 'bold', color: idx < 3 ? 'var(--primary)' : 'var(--text-secondary)' }}>
+                          {idx + 1}
+                        </td>
+                        <td style={{ fontWeight: '600' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span className={styles.playerName}>{player.name}</span>
+                          </div>
+                          <span className={styles.winRateSubText}>Win Rate: {wr}%</span>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          {player.stats.played === 0 ? (
+                            <span className="rating-badge-unrated">New</span>
+                          ) : (
+                            <div className="rating-display-container">
+                              <span className={`rating-tier-badge ${getPlayerTier(player.rating).class}`}>
+                                {getPlayerTier(player.rating).emoji} {getPlayerTier(player.rating).name}
+                              </span>
+                              <span className="rating-elo-text">
+                                {player.rating} Elo
+                              </span>
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>{player.stats.played}</td>
+                        <td style={{ textAlign: 'center', color: 'var(--primary)' }}>{player.stats.wins}</td>
+                        <td style={{ textAlign: 'center', color: 'var(--danger)' }}>{player.stats.losses}</td>
+                        {isAdmin && (
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              onClick={() => handleDeletePlayer(player.id)}
+                              className={styles.deleteBtn}
+                              disabled={deletingPlayerId === player.id}
+                              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '32px', minHeight: '32px' }}
+                            >
+                              {deletingPlayerId === player.id ? (
+                                <span className="btn-spinner" style={{ width: '12px', height: '12px' }}></span>
+                              ) : (
+                                <Trash2 size={15} />
+                              )}
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })}
+                  {players.length === 0 && (
+                    <tr>
+                      <td colSpan={isAdmin ? 7 : 6} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px' }}>
+                        No players registered.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       ) : activeView === 'sandbox-select' ? (

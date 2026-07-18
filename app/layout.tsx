@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Fira_Code } from "next/font/google";
+import Script from "next/script";
 import Navbar from "../components/Navbar";
 import { ToastProvider } from "../components/Toast";
 import { ConfirmProvider } from "../components/ConfirmDialog";
@@ -42,11 +43,13 @@ export default function RootLayout({
       className={`${outfit.variable} ${firaCode.variable} h-full antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `
-          (function() {
-            document.documentElement.setAttribute('data-theme', 'dark');
-          })()
-        `}} />
+        <Script id="theme-loader" strategy="beforeInteractive">
+          {`
+            (function() {
+              document.documentElement.setAttribute('data-theme', 'dark');
+            })()
+          `}
+        </Script>
       </head>
       <body className="min-h-full">
         <ToastProvider>

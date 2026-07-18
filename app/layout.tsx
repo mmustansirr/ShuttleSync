@@ -42,7 +42,8 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${outfit.variable} ${firaCode.variable} h-full antialiased`}
     >
-      <head>
+      <head />
+      <body className="min-h-full">
         <Script id="theme-loader" strategy="beforeInteractive">
           {`
             (function() {
@@ -50,8 +51,6 @@ export default function RootLayout({
             })()
           `}
         </Script>
-      </head>
-      <body className="min-h-full">
         <ToastProvider>
           <ConfirmProvider>
             <div className="app-layout">

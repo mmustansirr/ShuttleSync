@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { UserPlus, Trash2, Shuffle, ArrowRightLeft, Star, Users, Info } from 'lucide-react';
+import { UserPlus, Trash2, Edit2, Shuffle, ArrowRightLeft, Star, Users, Info } from 'lucide-react';
 import { Player, Team } from '../../lib/db';
 import { getAdminPin, getAuthHeaders } from '../../lib/auth';
 import { useToast } from '../../components/Toast';
@@ -17,7 +17,7 @@ export default function PlayersPage() {
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   
   // Auth state
-  const [isAdmin, setIsAdmin] = useState<boolean>(() => typeof window !== 'undefined' ? getAdminPin() !== '' : false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   // View states
@@ -26,6 +26,13 @@ export default function PlayersPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [deletingPlayerId, setDeletingPlayerId] = useState<string | null>(null);
+
+  // Action/Edit Modal states
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [activePlayerForAction, setActivePlayerForAction] = useState<Player | null>(null);
+  const [isEditingMode, setIsEditingMode] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Randomizer states
   const [generatedTeams, setGeneratedTeams] = useState<Team[]>([]);
@@ -46,6 +53,8 @@ export default function PlayersPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsAdmin(getAdminPin() !== '');
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPlayers();
     
@@ -117,6 +126,34 @@ export default function PlayersPage() {
       showToast('Error deleting player.', 'error');
     } finally {
       setDeletingPlayerId(null);
+    }
+  }
+
+  async function handleEditPlayerName(e: React.FormEvent) {
+    e.preventDefault();
+    if (!activePlayerForAction || !editName.trim()) return;
+    setIsSavingEdit(true);
+    try {
+      const res = await fetch(`/api/players/${activePlayerForAction.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ name: editName.trim() })
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setPlayers(players.map(p => p.id === activePlayerForAction.id ? updated : p));
+        showToast(`Player name updated to "${updated.name}"`, 'success');
+        setIsActionModalOpen(false);
+        setActivePlayerForAction(null);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToast(`Error: ${err.error || 'Failed to update player.'}`, 'error');
+      }
+    } catch (err) {
+      console.error('Error updating player name:', err);
+      showToast('Error updating player name.', 'error');
+    } finally {
+      setIsSavingEdit(false);
     }
   }
 
@@ -404,16 +441,17 @@ export default function PlayersPage() {
                         {isAdmin && (
                           <td style={{ textAlign: 'center' }}>
                             <button
-                              onClick={() => handleDeletePlayer(player.id)}
+                              onClick={() => {
+                                setActivePlayerForAction(player);
+                                setEditName(player.name);
+                                setIsEditingMode(false);
+                                setIsActionModalOpen(true);
+                              }}
                               className={styles.deleteBtn}
-                              disabled={deletingPlayerId === player.id}
                               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '32px', minHeight: '32px' }}
+                              title="Manage Player"
                             >
-                              {deletingPlayerId === player.id ? (
-                                <span className="btn-spinner" style={{ width: '12px', height: '12px' }}></span>
-                              ) : (
-                                <Trash2 size={15} />
-                              )}
+                              <Edit2 size={15} />
                             </button>
                           </td>
                         )}
@@ -711,6 +749,101 @@ export default function PlayersPage() {
             >
               Got it!
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Action / Edit Modal Overlay */}
+      {isActionModalOpen && activePlayerForAction && (
+        <div className={styles.modalOverlay} onClick={() => {
+          if (!isSavingEdit && !deletingPlayerId) {
+            setIsActionModalOpen(false);
+            setActivePlayerForAction(null);
+          }
+        }}>
+          <div className={styles.modal} style={{ maxWidth: '340px' }} onClick={(e) => e.stopPropagation()}>
+            {!isEditingMode ? (
+              <>
+                <h3 style={{ marginBottom: '20px' }}>Manage Player</h3>
+                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-heading)' }}>
+                    {activePlayerForAction.name}
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                    Current Rating: {activePlayerForAction.rating} Elo
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingMode(true)}
+                    className="btn btn-primary"
+                    style={{ width: '100%' }}
+                  >
+                    Edit Name
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setIsActionModalOpen(false);
+                      await handleDeletePlayer(activePlayerForAction.id);
+                      setActivePlayerForAction(null);
+                    }}
+                    className="btn btn-danger"
+                    style={{ width: '100%' }}
+                  >
+                    Delete Player
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsActionModalOpen(false);
+                      setActivePlayerForAction(null);
+                    }}
+                    className="btn btn-secondary"
+                    style={{ width: '100%', marginTop: '8px' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3 style={{ marginBottom: '20px' }}>Edit Player Name</h3>
+                <form onSubmit={handleEditPlayerName} className={styles.promptForm}>
+                  <div className="form-group">
+                    <label className="form-label">New Name</label>
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="form-input"
+                      required
+                      autoFocus
+                    />
+                  </div>
+                  <div className={styles.modalButtons}>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingMode(false)}
+                      className="btn btn-secondary"
+                      style={{ flex: 1 }}
+                      disabled={isSavingEdit}
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      style={{ flex: 1 }}
+                      disabled={isSavingEdit}
+                    >
+                      {isSavingEdit ? <span className="btn-spinner"></span> : 'Save'}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}

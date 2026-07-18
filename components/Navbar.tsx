@@ -13,7 +13,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { showToast } = useToast();
   const { confirm } = useConfirm();
-  const [isAdmin, setIsAdmin] = useState<boolean>(() => typeof window !== 'undefined' ? getAdminPin() !== '' : false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [showPrompt, setShowPrompt] = useState(false);
   const [inputPin, setInputPin] = useState('');
@@ -21,6 +21,10 @@ export default function Navbar() {
   const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
+    // Set initial admin state on mount
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsAdmin(getAdminPin() !== '');
+
     // Theme Check (Exclusive Dark Mode)
     document.documentElement.setAttribute('data-theme', 'dark');
 

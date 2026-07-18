@@ -92,7 +92,7 @@ export default function TournamentDetailPage({ params }: PageProps) {
   const didInitRef = useRef(false);
 
   // Auth State
-  const [isAdmin, setIsAdmin] = useState<boolean>(() => typeof window !== 'undefined' ? getAdminPin() !== '' : false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   // Next stage progression form states
   const [nextStageType, setNextStageType] = useState<'round-robin' | 'single-elimination'>('single-elimination');
@@ -127,11 +127,6 @@ export default function TournamentDetailPage({ params }: PageProps) {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchTournament();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchPlayers();
-    
     // Auth state sync
     const checkAdmin = () => {
       const isA = getAdminPin() !== '';
@@ -140,6 +135,12 @@ export default function TournamentDetailPage({ params }: PageProps) {
       setActiveTab(curr => (curr === 'admin' && !isA) ? 'standings' : curr);
     };
     checkAdmin();
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchTournament();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPlayers();
+    
     window.addEventListener('shuttlesync_auth_change', checkAdmin);
 
     const interval = setInterval(fetchTournament, 3000); // 3 seconds polling for live updates

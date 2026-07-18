@@ -37,12 +37,24 @@
   padding-bottom: var(--space-2);
 }
 
+.courtInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
 .courtName {
   font-size: 0.75rem;
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-wide);
   color: var(--color-text-muted);
+}
+
+.stageInfo {
+  font-size: 0.65rem;
+  color: var(--color-text-disabled);
+  letter-spacing: 0.02em;
 }
 
 .statusWrapper {
@@ -156,6 +168,18 @@
   background-color: oklch(68% 0.22 var(--hue-orange) / 0.05);
   box-shadow: 0 0 8px oklch(68% 0.22 var(--hue-orange) / 0.2);
 }
+
+/* Set slot that hasn't started yet — dashed border, muted dash character */
+.futureSet {
+  border-style: dashed;
+  border-color: var(--color-border-glass);
+  color: var(--color-text-disabled);
+  background-color: transparent;
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+
 
 .winner .setWinner {
   color: var(--color-accent-primary);

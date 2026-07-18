@@ -34,6 +34,10 @@ export default function PlayersPage() {
   const [editName, setEditName] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
+  // Player Details modal states
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [activePlayerDetails, setActivePlayerDetails] = useState<Player | null>(null);
+
   // Randomizer states
   const [generatedTeams, setGeneratedTeams] = useState<Team[]>([]);
   const [leftoverPlayers, setLeftoverPlayers] = useState<Player[]>([]);
@@ -131,20 +135,24 @@ export default function PlayersPage() {
 
   async function handleEditPlayerName(e: React.FormEvent) {
     e.preventDefault();
-    if (!activePlayerForAction || !editName.trim()) return;
+    const playerToEdit = activePlayerDetails || activePlayerForAction;
+    if (!playerToEdit || !editName.trim()) return;
     setIsSavingEdit(true);
     try {
-      const res = await fetch(`/api/players/${activePlayerForAction.id}`, {
+      const res = await fetch(`/api/players/${playerToEdit.id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({ name: editName.trim() })
       });
       if (res.ok) {
         const updated = await res.json();
-        setPlayers(players.map(p => p.id === activePlayerForAction.id ? updated : p));
+        setPlayers(players.map(p => p.id === playerToEdit.id ? updated : p));
         showToast(`Player name updated to "${updated.name}"`, 'success');
         setIsActionModalOpen(false);
         setActivePlayerForAction(null);
+        setIsDetailsModalOpen(false);
+        setActivePlayerDetails(null);
+        setIsEditingMode(false);
       } else {
         const err = await res.json().catch(() => ({}));
         showToast(`Error: ${err.error || 'Failed to update player.'}`, 'error');
@@ -349,6 +357,63 @@ export default function PlayersPage() {
     return a.stats.losses - b.stats.losses;
   });
 
+  const getTierProgress = (elo: number) => {
+    let floor = 800;
+    let ceil = 1000;
+    let nextTierName = 'Silver';
+    let isMaxTier = false;
+
+    if (elo < 1000) {
+      floor = 800;
+      ceil = 1000;
+      nextTierName = 'Silver';
+    } else if (elo < 1200) {
+      floor = 1000;
+      ceil = 1200;
+      nextTierName = 'Gold';
+    } else if (elo < 1400) {
+      floor = 1200;
+      ceil = 1400;
+      nextTierName = 'Platinum';
+    } else if (elo < 1600) {
+      floor = 1400;
+      ceil = 1600;
+      nextTierName = 'Diamond';
+    } else if (elo < 1800) {
+      floor = 1600;
+      ceil = 1800;
+      nextTierName = 'Master';
+    } else {
+      isMaxTier = true;
+    }
+
+    if (isMaxTier) {
+      return {
+        percent: 100,
+        remaining: 0,
+        nextTierName: '',
+        isMaxTier: true
+      };
+    }
+
+    const currentOffset = Math.max(0, elo - floor);
+    const totalRange = ceil - floor;
+    const percent = Math.min(100, Math.max(0, (currentOffset / totalRange) * 100));
+    const remaining = ceil - elo;
+
+    return {
+      percent,
+      remaining,
+      nextTierName,
+      isMaxTier: false
+    };
+  };
+
+  const handlePlayerClick = (player: Player) => {
+    setActivePlayerDetails(player);
+    setIsDetailsModalOpen(true);
+  };
+
   return (
     <>
       <div className="page-container animate-slide">
@@ -396,22 +461,28 @@ export default function PlayersPage() {
                         <Info 
                           size={14} 
                           style={{ cursor: 'pointer', color: 'var(--text-secondary)' }}
-                          onClick={() => setIsInfoModalOpen(true)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsInfoModalOpen(true);
+                          }}
                         />
                       </div>
                     </th>
                     <th style={{ textAlign: 'center' }}>P</th>
                     <th style={{ textAlign: 'center' }}>W</th>
                     <th style={{ textAlign: 'center' }}>L</th>
-                    {isAdmin && <th style={{ width: '40px' }}></th>}
                   </tr>
                 </thead>
                 <tbody>
                   {sortedPlayers.map((player, idx) => {
                     const total = player.stats.played;
                     const wr = total > 0 ? Math.round((player.stats.wins / total) * 100) : 0;
+                    const tierClass = getPlayerTier(player.rating).class.replace('tier-', 'row');
+                    const rowTierStyle = styles[tierClass] || '';
+                    const rowClass = `${styles.clickableRow} ${player.stats.played === 0 ? '' : rowTierStyle}`;
+
                     return (
-                      <tr key={player.id}>
+                      <tr key={player.id} className={rowClass} onClick={() => handlePlayerClick(player)}>
                         <td style={{ textAlign: 'center', fontWeight: 'bold', color: idx < 3 ? 'var(--primary)' : 'var(--text-secondary)' }}>
                           {idx + 1}
                         </td>
@@ -438,29 +509,12 @@ export default function PlayersPage() {
                         <td style={{ textAlign: 'center' }}>{player.stats.played}</td>
                         <td style={{ textAlign: 'center', color: 'var(--primary)' }}>{player.stats.wins}</td>
                         <td style={{ textAlign: 'center', color: 'var(--danger)' }}>{player.stats.losses}</td>
-                        {isAdmin && (
-                          <td style={{ textAlign: 'center' }}>
-                            <button
-                              onClick={() => {
-                                setActivePlayerForAction(player);
-                                setEditName(player.name);
-                                setIsEditingMode(false);
-                                setIsActionModalOpen(true);
-                              }}
-                              className={styles.deleteBtn}
-                              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '32px', minHeight: '32px' }}
-                              title="Manage Player"
-                            >
-                              <Edit2 size={15} />
-                            </button>
-                          </td>
-                        )}
                       </tr>
                     );
                   })}
                   {players.length === 0 && (
                     <tr>
-                      <td colSpan={isAdmin ? 7 : 6} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px' }}>
+                      <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px' }}>
                         No players registered.
                       </td>
                     </tr>
@@ -720,27 +774,68 @@ export default function PlayersPage() {
       {/* Info Modal Overlay */}
       {isInfoModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setIsInfoModalOpen(false)}>
-          <div className={styles.modal} style={{ maxWidth: '400px' }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>🏸 How Ratings Work</h3>
-            <div style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-primary)', margin: '16px 0', textAlign: 'left' }}>
-              <p style={{ marginBottom: '12px' }}>
-                <strong>What is Elo?</strong><br />
-                It is a score that shows how good you are at badminton! Everyone starts with 1200 points.
-              </p>
-              <p style={{ marginBottom: '12px' }}>
-                <strong>How does it change?</strong><br />
-                - <strong>Win a match?</strong> Your score goes up! 📈<br />
-                - <strong>Lose a match?</strong> Your score goes down. 📉
-              </p>
-              <p style={{ marginBottom: '12px' }}>
-                <strong>Beat the best:</strong><br />
-                If you beat a player with a much higher score, you get a lot of bonus points! If you beat a beginner, you only get a few points.
-              </p>
-              <p>
-                <strong>First time?</strong><br />
-                New players are marked as <strong>New</strong> and stay at the bottom of the list until they play their first real game.
-              </p>
+          <div className={styles.modal} style={{ maxWidth: '420px' }} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.infoModalTitle}>
+              🏸 How Ratings Work
+            </h3>
+            
+            <div className={styles.infoModalContent}>
+              <div className={styles.infoSection}>
+                <span className={styles.infoQuestion}>What is Elo?</span>
+                <span className={styles.infoAnswer}>
+                  It is a number representing your badminton skill. Everyone starts with <strong>1200 Elo</strong>.
+                </span>
+              </div>
+
+              <div className={styles.infoSection}>
+                <span className={styles.infoQuestion}>How does it change?</span>
+                <span className={styles.infoAnswer}>
+                  - <strong>Win a match?</strong> Your rating goes up! 📈<br />
+                  - <strong>Lose a match?</strong> Your rating goes down. 📉
+                </span>
+              </div>
+
+              <div className={styles.infoSection}>
+                <span className={styles.infoQuestion}>Rating Tiers & Brackets</span>
+                <span className={styles.infoAnswer}>
+                  Your tier is determined by your current Elo score:
+                </span>
+                <div className={styles.infoTiersList}>
+                  <div className={styles.infoTierRow}>
+                    <span className="rating-tier-badge tier-master">👑 Master</span>
+                    <span className={styles.infoTierValue}>1800+ Elo</span>
+                  </div>
+                  <div className={styles.infoTierRow}>
+                    <span className="rating-tier-badge tier-diamond">🏆 Diamond</span>
+                    <span className={styles.infoTierValue}>1600 - 1799 Elo</span>
+                  </div>
+                  <div className={styles.infoTierRow}>
+                    <span className="rating-tier-badge tier-platinum">💎 Platinum</span>
+                    <span className={styles.infoTierValue}>1400 - 1599 Elo</span>
+                  </div>
+                  <div className={styles.infoTierRow}>
+                    <span className="rating-tier-badge tier-gold">🥇 Gold</span>
+                    <span className={styles.infoTierValue}>1200 - 1399 Elo</span>
+                  </div>
+                  <div className={styles.infoTierRow}>
+                    <span className="rating-tier-badge tier-silver">🥈 Silver</span>
+                    <span className={styles.infoTierValue}>1000 - 1199 Elo</span>
+                  </div>
+                  <div className={styles.infoTierRow}>
+                    <span className="rating-tier-badge tier-bronze">🥉 Bronze</span>
+                    <span className={styles.infoTierValue}>Under 1000 Elo</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.infoSection}>
+                <span className={styles.infoQuestion}>First Time Players?</span>
+                <span className={styles.infoAnswer}>
+                  New players are labeled as <strong>New</strong> and positioned at the bottom of the list until they complete their first rated match.
+                </span>
+              </div>
             </div>
+
             <button
               type="button"
               onClick={() => setIsInfoModalOpen(false)}
@@ -753,63 +848,167 @@ export default function PlayersPage() {
         </div>
       )}
 
-      {/* Action / Edit Modal Overlay */}
-      {isActionModalOpen && activePlayerForAction && (
+      {/* Player Details Modal Overlay */}
+      {isDetailsModalOpen && activePlayerDetails && (
         <div className={styles.modalOverlay} onClick={() => {
           if (!isSavingEdit && !deletingPlayerId) {
-            setIsActionModalOpen(false);
-            setActivePlayerForAction(null);
+            setIsDetailsModalOpen(false);
+            setActivePlayerDetails(null);
+            setIsEditingMode(false);
           }
         }}>
-          <div className={styles.modal} style={{ maxWidth: '340px' }} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modal} style={{ maxWidth: '360px' }} onClick={(e) => e.stopPropagation()}>
             {!isEditingMode ? (
               <>
-                <h3 style={{ marginBottom: '20px' }}>Manage Player</h3>
-                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-heading)' }}>
-                    {activePlayerForAction.name}
+                <div className={styles.detailsHeader}>
+                  <span className={styles.detailsRank}>
+                    Position #{sortedPlayers.findIndex(p => p.id === activePlayerDetails.id) + 1} of {players.length}
+                  </span>
+                  <h2 className={styles.detailsName}>{activePlayerDetails.name}</h2>
+                </div>
+
+                <div className={styles.detailsTierCard}>
+                  {activePlayerDetails.stats.played === 0 ? (
+                    <>
+                      <span className="rating-badge-unrated" style={{ fontSize: '0.9rem', padding: '4px 12px' }}>New Player</span>
+                      <span className={styles.detailsEloText}>{activePlayerDetails.rating} Elo</span>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                        Play a match to calculate tier progress
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <span className={`${styles.detailsTierBadge} ${getPlayerTier(activePlayerDetails.rating).class}`}>
+                        {getPlayerTier(activePlayerDetails.rating).emoji} {getPlayerTier(activePlayerDetails.rating).name}
+                      </span>
+                      <span className={styles.detailsEloText}>{activePlayerDetails.rating} Elo</span>
+                      <div className={styles.detailsStars}>
+                        {(() => {
+                          const stars = eloToStars(activePlayerDetails.rating);
+                          return `${stars.toFixed(1)} ★`;
+                        })()}
+                      </div>
+
+                      {/* Tier Progress bar */}
+                      {(() => {
+                        const prog = getTierProgress(activePlayerDetails.rating);
+                        return (
+                          <div className={styles.progressContainer}>
+                            <div className={styles.progressText}>
+                              <span>Progress to {prog.isMaxTier ? 'Peak' : prog.nextTierName}</span>
+                              <span>
+                                {prog.isMaxTier 
+                                  ? 'Max Tier reached!' 
+                                  : `${prog.remaining} Elo remaining`}
+                              </span>
+                            </div>
+                            <div className={styles.progressBarOuter}>
+                              <div 
+                                className={`${styles.progressBarInner} ${getPlayerTier(activePlayerDetails.rating).class}`} 
+                                style={{ width: `${prog.percent}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </>
+                  )}
+                </div>
+
+                {/* Performance Stats */}
+                <div className={styles.statsGrid}>
+                  <div className={styles.statItem}>
+                    <span className={styles.statValue}>{activePlayerDetails.stats.played}</span>
+                    <span className={styles.statLabel}>Played</span>
                   </div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                    Current Rating: {activePlayerForAction.rating} Elo
+                  <div className={styles.statItem}>
+                    <span className={styles.statValue} style={{ color: 'var(--primary)' }}>
+                      {activePlayerDetails.stats.wins}
+                    </span>
+                    <span className={styles.statLabel}>Wins</span>
+                  </div>
+                  <div className={styles.statItem}>
+                    <span className={styles.statValue} style={{ color: 'var(--danger)' }}>
+                      {activePlayerDetails.stats.losses}
+                    </span>
+                    <span className={styles.statLabel}>Losses</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setIsEditingMode(true)}
-                    className="btn btn-primary"
-                    style={{ width: '100%' }}
-                  >
-                    Edit Name
-                  </button>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      setIsActionModalOpen(false);
-                      await handleDeletePlayer(activePlayerForAction.id);
-                      setActivePlayerForAction(null);
-                    }}
-                    className="btn btn-danger"
-                    style={{ width: '100%' }}
-                  >
-                    Delete Player
-                  </button>
+
+                {/* Win Rate Bar */}
+                {activePlayerDetails.stats.played > 0 && (
+                  <div className={styles.winRateSection}>
+                    <span className={styles.winRateLabel}>Win Rate</span>
+                    <div className={styles.winRateTrack}>
+                      <div 
+                        className={styles.winRateBar} 
+                        style={{ width: `${Math.round((activePlayerDetails.stats.wins / activePlayerDetails.stats.played) * 100)}%` }}
+                      />
+                    </div>
+                    <span className={styles.winRateTextValue}>
+                      {Math.round((activePlayerDetails.stats.wins / activePlayerDetails.stats.played) * 100)}%
+                    </span>
+                  </div>
+                )}
+
+                {/* Admin actions inside the Details Modal */}
+                {isAdmin ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--color-border-glass)', paddingTop: '16px', marginTop: '16px' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditName(activePlayerDetails.name);
+                          setIsEditingMode(true);
+                        }}
+                        className="btn btn-primary"
+                        style={{ flex: 1 }}
+                      >
+                        Edit Name
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const confirmDelete = activePlayerDetails.id;
+                          setIsDetailsModalOpen(false);
+                          await handleDeletePlayer(confirmDelete);
+                          setActivePlayerDetails(null);
+                        }}
+                        className="btn btn-danger"
+                        style={{ flex: 1 }}
+                      >
+                        Delete Player
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsDetailsModalOpen(false);
+                        setActivePlayerDetails(null);
+                      }}
+                      className="btn btn-secondary"
+                      style={{ width: '100%', marginTop: '4px' }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                ) : (
                   <button
                     type="button"
                     onClick={() => {
-                      setIsActionModalOpen(false);
-                      setActivePlayerForAction(null);
+                      setIsDetailsModalOpen(false);
+                      setActivePlayerDetails(null);
                     }}
-                    className="btn btn-secondary"
+                    className="btn btn-primary"
                     style={{ width: '100%', marginTop: '8px' }}
                   >
-                    Cancel
+                    Close
                   </button>
-                </div>
+                )}
               </>
             ) : (
               <>
-                <h3 style={{ marginBottom: '20px' }}>Edit Player Name</h3>
+                <h3 className={styles.infoModalTitle}>Edit Player Name</h3>
                 <form onSubmit={handleEditPlayerName} className={styles.promptForm}>
                   <div className="form-group">
                     <label className="form-label">New Name</label>

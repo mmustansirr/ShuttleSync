@@ -67,7 +67,8 @@
 .winRateSubText {
   display: block;
   font-size: 0.7rem;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
+  opacity: 0.7;
   font-weight: var(--font-weight-normal);
   margin-top: 2px;
 }
@@ -374,12 +375,10 @@
   width: 100%;
   max-width: 340px;
   padding: var(--space-5);
-  border: 1px solid var(--color-border-glass);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-card);
-  background-color: var(--color-bg-glass);
-  backdrop-filter: blur(var(--blur-glass));
-  -webkit-backdrop-filter: blur(var(--blur-glass));
-  box-shadow: var(--shadow-ambient);
+  background-color: var(--bg-secondary);
+  box-shadow: var(--shadow-lg), 0 0 24px rgba(216, 67, 248, 0.1);
 }
 
 .modal h3 {
@@ -680,3 +679,279 @@
 
 
 
+
+
+/* Interactive Row Highlights (Subtle Background Tint, no left border accent) */
+.clickableRow {
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-smooth);
+}
+
+.rowBronze {
+  background-color: rgba(124, 75, 48, 0.02) !important;
+}
+.rowSilver {
+  background-color: rgba(71, 85, 105, 0.02) !important;
+}
+.rowGold {
+  background-color: rgba(180, 83, 9, 0.02) !important;
+}
+.rowPlatinum {
+  background-color: rgba(3, 105, 161, 0.02) !important;
+}
+.rowDiamond {
+  background-color: rgba(14, 116, 144, 0.02) !important;
+}
+.rowMaster {
+  background-color: rgba(109, 40, 217, 0.02) !important;
+}
+
+/* Hover effects */
+.clickableRow:hover {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+}
+.clickableRow.rowBronze:hover {
+  background-color: rgba(124, 75, 48, 0.07) !important;
+}
+.clickableRow.rowSilver:hover {
+  background-color: rgba(71, 85, 105, 0.07) !important;
+}
+.clickableRow.rowGold:hover {
+  background-color: rgba(180, 83, 9, 0.07) !important;
+}
+.clickableRow.rowPlatinum:hover {
+  background-color: rgba(3, 105, 161, 0.07) !important;
+}
+.clickableRow.rowDiamond:hover {
+  background-color: rgba(14, 116, 144, 0.07) !important;
+}
+.clickableRow.rowMaster:hover {
+  background-color: rgba(109, 40, 217, 0.07) !important;
+}
+
+/* Details Modal Styles */
+.detailsHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: var(--space-4);
+  gap: var(--space-1);
+}
+
+.detailsRank {
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-primary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.detailsName {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text-heading);
+}
+
+.detailsTierCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-border-glass);
+  margin-bottom: var(--space-4);
+  text-align: center;
+  gap: var(--space-2);
+}
+
+.detailsTierBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-ambient);
+}
+
+.detailsEloText {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-text-heading);
+}
+
+.detailsStars {
+  display: flex;
+  gap: var(--space-1);
+  color: #ffb100;
+  font-size: 1rem;
+}
+
+.progressContainer {
+  width: 100%;
+  margin-top: var(--space-3);
+  background: rgba(0, 0, 0, 0.15);
+  padding: var(--space-3);
+  border-radius: var(--radius-interactive);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.progressText {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.progressBarOuter {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-glass);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progressBarInner {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width var(--duration-normal) var(--ease-spring);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-3) var(--space-2);
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-interactive);
+}
+
+.statValue {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-text-heading);
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.winRateSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.winRateLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.winRateTrack {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 1px solid var(--color-border-glass);
+}
+
+.winRateBar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%);
+  border-radius: 9999px;
+  transition: width var(--duration-normal) var(--ease-spring);
+}
+
+.winRateTextValue {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-text-heading);
+}
+
+/* Info Modal Styling - High Contrast & High Readability */
+.infoModalTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--color-text-heading);
+  text-align: center;
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.infoModalContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoQuestion {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary); /* Neon green for high contrast headings */
+}
+
+.infoAnswer {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #e2e8f0; /* Perfect readable white-grey contrast */
+}
+
+.infoTiersList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: var(--space-3);
+  border-radius: var(--radius-interactive);
+  border: 1px solid var(--color-border-glass);
+}
+
+.infoTierRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+
+.infoTierValue {
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+}

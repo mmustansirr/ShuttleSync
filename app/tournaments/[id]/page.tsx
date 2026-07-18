@@ -214,6 +214,12 @@ export default function TournamentDetailPage({ params }: PageProps) {
   const isViewingLiveStage = pickedStage.id === currentStage.id;
   const allTeams = tournament.stages[0].teams || [];
 
+  // Per-stage scoring rules — used by CourtCard to know how many set boxes to render
+  const viewedStagePlan = tournament.stagePlan?.[viewedStageIndex];
+  const viewedStageSettings = viewedStagePlan?.settings ?? tournament.settings;
+  const viewedSetsCount: 1 | 3 = (viewedStageSettings?.setsCount ?? 3) as 1 | 3;
+  const viewedStageLabel = `Stage ${viewedStageIndex + 1} · ${pickedStage?.type === 'round-robin' ? 'Round Robin' : 'Knockout'}`;
+
   const winnerTeam = getTournamentWinner(tournament);
   const winnerPlayers = winnerTeam
     ? winnerTeam.playerIds.map(id => players.find(p => p.id === id)?.name).filter(Boolean).join(' & ')
@@ -518,7 +524,9 @@ export default function TournamentDetailPage({ params }: PageProps) {
                             team2Name: getTeamName(match.team2Id),
                             score: match.score,
                             status: match.status,
-                            court: match.court
+                            court: match.court,
+                            setsCount: viewedSetsCount,
+                            stageLabel: viewedStageLabel
                           }}
                           isAdmin={isAdmin && tournament.status === 'active' && isViewingLiveStage}
                           onSelectScoring={handleSelectScoring}
@@ -543,7 +551,9 @@ export default function TournamentDetailPage({ params }: PageProps) {
                         team2Name: getTeamName(match.team2Id),
                         score: match.score,
                         status: match.status,
-                        court: match.court
+                        court: match.court,
+                        setsCount: viewedSetsCount,
+                        stageLabel: viewedStageLabel
                       }}
                       isAdmin={isAdmin && tournament.status === 'active' && isViewingLiveStage && !!(match.team1Id && match.team2Id)}
                       onSelectScoring={handleSelectScoring}

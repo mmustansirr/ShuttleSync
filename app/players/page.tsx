@@ -308,7 +308,8 @@ export default function PlayersPage() {
   });
 
   return (
-    <div className="page-container animate-slide">
+    <>
+      <div className="page-container animate-slide">
       {/* Mobile-first segment switch */}
       <div className="segment-header">
         <button
@@ -616,6 +617,8 @@ export default function PlayersPage() {
         </div>
       )}
 
+      </div>
+
       {/* Add Player Modal Overlay */}
       {isAddModalOpen && (
         <div className={styles.modalOverlay}>
@@ -696,6 +699,6 @@ export default function PlayersPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

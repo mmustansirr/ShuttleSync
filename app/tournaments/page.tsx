@@ -424,7 +424,7 @@ export default function TournamentsPage() {
           {/* Page Sub-Header matching Players Directory */}
           <div className={styles.directoryHeader}>
             <h2>Tournaments</h2>
-            {isAdmin && tournaments.length > 0 && (
+            {isAdmin && (
               <button
                 className={`btn btn-primary ${styles.newTourneyBtn}`}
                 onClick={() => setActiveView('setup')}

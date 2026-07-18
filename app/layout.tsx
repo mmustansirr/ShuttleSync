@@ -18,7 +18,7 @@ const firaCode = Fira_Code({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#131219", // Deep Obsidian base color
+  themeColor: "#090714", // Deep Obsidian base color matching CSS background
   width: "device-width",
   initialScale: 1,
 };
@@ -26,6 +26,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "ShuttleSync - Badminton Tournament Tracker",
   description: "Manage badminton matches, random doubles pairings, and real-time live tournament scoreboards.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ShuttleSync",
+  },
   icons: {
     apple: "/icons/apple-touch-icon.png",
   },

@@ -13,9 +13,10 @@ interface BracketViewProps {
   allTeams: Team[];
   onSelectScoring?: (matchId: string) => void;
   isAdmin?: boolean;
+  loadingMatchId?: string | null;
 }
 
-export default function BracketView({ bracket, allTeams, onSelectScoring, isAdmin = false }: BracketViewProps) {
+export default function BracketView({ bracket, allTeams, onSelectScoring, isAdmin = false, loadingMatchId = null }: BracketViewProps) {
   const getTeamName = (id: string) => {
     if (!id) return 'TBD';
     const team = allTeams.find(t => t.id === id);
@@ -99,8 +100,14 @@ export default function BracketView({ bracket, allTeams, onSelectScoring, isAdmi
                         <button 
                           className={`${styles.scoreBtn} btn btn-primary`}
                           onClick={() => onSelectScoring(match.id)}
+                          disabled={loadingMatchId === match.id}
+                          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '60px' }}
                         >
-                          {isLive ? 'Score' : 'Start'}
+                          {loadingMatchId === match.id ? (
+                            <span className="btn-spinner" style={{ width: '12px', height: '12px' }}></span>
+                          ) : (
+                            isLive ? 'Score' : 'Start'
+                          )}
                         </button>
                       )}
 

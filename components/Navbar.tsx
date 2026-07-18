@@ -13,7 +13,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { showToast } = useToast();
   const { confirm } = useConfirm();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => typeof window !== 'undefined' ? getAdminPin() !== '' : false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [showPrompt, setShowPrompt] = useState(false);
   const [inputPin, setInputPin] = useState('');
@@ -21,11 +21,7 @@ export default function Navbar() {
   const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
-    // Auth Check
-    setIsAdmin(getAdminPin() !== '');
-
     // Theme Check (Exclusive Dark Mode)
-    setTheme('dark');
     document.documentElement.setAttribute('data-theme', 'dark');
 
     // Listen for auth changes

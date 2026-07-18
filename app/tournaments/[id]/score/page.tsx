@@ -67,62 +67,6 @@ export default function ScoreControlPage({ params }: PageProps) {
   // Debounced auto-save ref
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (getAdminPin() === '') {
-      showToast('Access Denied: Admin PIN required to umpire matches.', 'error');
-      router.push(`/tournaments/${tournamentId}`);
-      return;
-    }
-    if (!matchId) {
-      router.push(`/tournaments/${tournamentId}`);
-      return;
-    }
-    fetchMatchDetails();
-  }, [tournamentId, matchId]);
-
-  // Real-time auto-saving of score changes
-  useEffect(() => {
-    if (loading || !match || status === 'completed' || isSaving) return;
-
-    const scoreObj = {
-      set1: { team1: set1T1, team2: set1T2 },
-      set2: { team1: set2T1, team2: set2T2 },
-      set3: (set3T1 > 0 || set3T2 > 0 || activeSet === 3) ? { team1: set3T1, team2: set3T2 } : undefined
-    };
-
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/matches/${matchId}`, {
-          method: 'PUT',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            tournamentId,
-            score: scoreObj,
-            status,
-            court: court.trim()
-          })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          // Sync local match details quietly
-          setMatch(data.match);
-        }
-      } catch (err) {
-        console.error('Auto-save error:', err);
-      }
-    }, 450); // 450ms debounce to avoid spamming network while clicking + / - rapidly
-
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, [set1T1, set1T2, set2T1, set2T2, set3T1, set3T2, status, court, loading, match, tournamentId, matchId, isSaving]);
-
   async function fetchMatchDetails() {
     try {
       const res = await fetch(`/api/tournaments/${tournamentId}`);
@@ -189,6 +133,63 @@ export default function ScoreControlPage({ params }: PageProps) {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (getAdminPin() === '') {
+      showToast('Access Denied: Admin PIN required to umpire matches.', 'error');
+      router.push(`/tournaments/${tournamentId}`);
+      return;
+    }
+    if (!matchId) {
+      router.push(`/tournaments/${tournamentId}`);
+      return;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchMatchDetails();
+  }, [tournamentId, matchId]);
+
+  // Real-time auto-saving of score changes
+  useEffect(() => {
+    if (loading || !match || status === 'completed' || isSaving) return;
+
+    const scoreObj = {
+      set1: { team1: set1T1, team2: set1T2 },
+      set2: { team1: set2T1, team2: set2T2 },
+      set3: (set3T1 > 0 || set3T2 > 0 || activeSet === 3) ? { team1: set3T1, team2: set3T2 } : undefined
+    };
+
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/matches/${matchId}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            tournamentId,
+            score: scoreObj,
+            status,
+            court: court.trim()
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Sync local match details quietly
+          setMatch(data.match);
+        }
+      } catch (err) {
+        console.error('Auto-save error:', err);
+      }
+    }, 450); // 450ms debounce to avoid spamming network while clicking + / - rapidly
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [set1T1, set1T2, set2T1, set2T2, set3T1, set3T2, status, court, loading, match, tournamentId, matchId, isSaving]);
 
   // Push current state to undo history
   const pushToHistory = () => {
@@ -357,7 +358,7 @@ export default function ScoreControlPage({ params }: PageProps) {
     setT2LeftPlayer(temp);
   };
 
-  const saveScore = async (newStatus?: 'pending' | 'live' | 'completed') => {
+  const saveScore = async (newStatus?: 'pending' | 'live' | 'completed'): Promise<boolean> => {
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
@@ -386,13 +387,16 @@ export default function ScoreControlPage({ params }: PageProps) {
         setMatch(data.match);
         setStatus(data.match.status);
         showToast(newStatus ? `Match status updated to ${newStatus}!` : 'Match scores saved successfully!', 'success');
+        return true;
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         showToast(`Failed to save: ${err.error || 'Unknown error'}`, 'error');
+        return false;
       }
     } catch (err) {
       console.error('Error saving score:', err);
       showToast('Error saving score.', 'error');
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -431,8 +435,10 @@ export default function ScoreControlPage({ params }: PageProps) {
       cancelText: 'Cancel'
     });
     if (confirmed) {
-      await saveScore('completed');
-      router.push(`/tournaments/${tournamentId}`);
+      const success = await saveScore('completed');
+      if (success) {
+        router.push(`/tournaments/${tournamentId}`);
+      }
     }
   };
 

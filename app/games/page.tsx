@@ -249,7 +249,7 @@ export default function SocialPlayPage() {
           <br />
           Love using the app? Have feature ideas or bug reports?
           <br />
-          Let's talk! ✉️ <a href="mailto:mustansirpratabgad@gmail.com" className={styles.creditsLink}>mustansirpratabgad@gmail.com</a>
+          Let&apos;s talk! ✉️ <a href="mailto:mustansirpratabgad@gmail.com" className={styles.creditsLink}>mustansirpratabgad@gmail.com</a>
         </div>
       </div>
     </div>

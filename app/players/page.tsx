@@ -17,7 +17,7 @@ export default function PlayersPage() {
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   
   // Auth state
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => typeof window !== 'undefined' ? getAdminPin() !== '' : false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   // View states
@@ -25,21 +25,12 @@ export default function PlayersPage() {
   const [generationMode, setGenerationMode] = useState<'balanced' | 'random'>('balanced');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [deletingPlayerId, setDeletingPlayerId] = useState<string | null>(null);
 
   // Randomizer states
   const [generatedTeams, setGeneratedTeams] = useState<Team[]>([]);
   const [leftoverPlayers, setLeftoverPlayers] = useState<Player[]>([]);
   const [swapId, setSwapId] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchPlayers();
-    
-    // Admin state sync
-    setIsAdmin(getAdminPin() !== '');
-    const handleAuth = () => setIsAdmin(getAdminPin() !== '');
-    window.addEventListener('shuttlesync_auth_change', handleAuth);
-    return () => window.removeEventListener('shuttlesync_auth_change', handleAuth);
-  }, []);
 
   async function fetchPlayers() {
     try {
@@ -53,6 +44,16 @@ export default function PlayersPage() {
       console.error('Error fetching players:', err);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPlayers();
+    
+    // Admin state sync
+    const handleAuth = () => setIsAdmin(getAdminPin() !== '');
+    window.addEventListener('shuttlesync_auth_change', handleAuth);
+    return () => window.removeEventListener('shuttlesync_auth_change', handleAuth);
+  }, []);
 
   async function handleAddPlayer(e: React.FormEvent) {
     e.preventDefault();
@@ -92,6 +93,7 @@ export default function PlayersPage() {
       cancelText: 'Cancel'
     });
     if (!confirmed) return;
+    setDeletingPlayerId(id);
     try {
       const res = await fetch(`/api/players/${id}`, { 
         method: 'DELETE',
@@ -107,11 +109,14 @@ export default function PlayersPage() {
           showToast(`Player "${deletedPlayer.name}" deleted.`, 'info');
         }
       } else {
-        showToast('Unauthorized: PIN required.', 'error');
+        const err = await res.json().catch(() => ({}));
+        showToast(`Unauthorized or error: ${err.error || 'PIN required.'}`, 'error');
       }
     } catch (err) {
       console.error('Error deleting player:', err);
       showToast('Error deleting player.', 'error');
+    } finally {
+      setDeletingPlayerId(null);
     }
   }
 
@@ -398,8 +403,14 @@ export default function PlayersPage() {
                           <button
                             onClick={() => handleDeletePlayer(player.id)}
                             className={styles.deleteBtn}
+                            disabled={deletingPlayerId === player.id}
+                            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '32px', minHeight: '32px' }}
                           >
-                            <Trash2 size={15} />
+                            {deletingPlayerId === player.id ? (
+                              <span className="btn-spinner" style={{ width: '12px', height: '12px' }}></span>
+                            ) : (
+                              <Trash2 size={15} />
+                            )}
                           </button>
                         </td>
                       )}

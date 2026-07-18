@@ -17,7 +17,7 @@ export default function TournamentsPage() {
   const [loading, setLoading] = useState(true);
 
   // Auth State
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => typeof window !== 'undefined' ? getAdminPin() !== '' : false);
 
   const [activeView, setActiveView] = useState<'dashboard' | 'setup'>('dashboard');
   const [subTab, setSubTab] = useState<'active' | 'completed'>('active');
@@ -47,22 +47,6 @@ export default function TournamentsPage() {
   const [leftoverPlayers, setLeftoverPlayers] = useState<Player[]>([]);
   const [swapId, setSwapId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchData();
-
-    // Admin state sync
-    setIsAdmin(getAdminPin() !== '');
-    const handleAuth = () => {
-      const isA = getAdminPin() !== '';
-      setIsAdmin(isA);
-      if (!isA) {
-        setActiveView('dashboard'); // Force standard view if locked
-      }
-    };
-    window.addEventListener('shuttlesync_auth_change', handleAuth);
-    return () => window.removeEventListener('shuttlesync_auth_change', handleAuth);
-  }, []);
-
   async function fetchData() {
     try {
       const [resT, resP] = await Promise.all([
@@ -78,12 +62,28 @@ export default function TournamentsPage() {
         setPlayers(pData);
         setSelectedPlayers(pData.map((p: Player) => p.id));
       }
-    } catch (err) {
-      console.error('Error fetching data:', err);
+    } catch (error) {
+      console.error('Error fetching tournaments page data:', error);
     } finally {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchData();
+
+    // Admin state sync
+    const handleAuth = () => {
+      const isA = getAdminPin() !== '';
+      setIsAdmin(isA);
+      if (!isA) {
+        setActiveView('dashboard'); // Force standard view if locked
+      }
+    };
+    window.addEventListener('shuttlesync_auth_change', handleAuth);
+    return () => window.removeEventListener('shuttlesync_auth_change', handleAuth);
+  }, []);
 
   const toggleSelectPlayer = (id: string) => {
     if (selectedPlayers.includes(id)) {

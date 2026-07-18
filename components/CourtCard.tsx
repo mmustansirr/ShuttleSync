@@ -20,9 +20,10 @@ interface CourtCardProps {
   match: CourtCardMatch;
   onSelectScoring?: (matchId: string) => void;
   isAdmin?: boolean;
+  isLoading?: boolean;
 }
 
-export default function CourtCard({ match, onSelectScoring, isAdmin = false }: CourtCardProps) {
+export default function CourtCard({ match, onSelectScoring, isAdmin = false, isLoading = false }: CourtCardProps) {
   const sets = [
     match.score.set1,
     match.score.set2,
@@ -104,10 +105,17 @@ export default function CourtCard({ match, onSelectScoring, isAdmin = false }: C
         <div className={styles.actions}>
           <button 
             className="btn btn-primary" 
-            style={{ width: '100%', padding: '6px 12px', fontSize: '0.85rem' }}
+            style={{ width: '100%', padding: '6px 12px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
             onClick={() => onSelectScoring(match.id)}
+            disabled={isLoading}
           >
-            <Play size={14} /> {isLive ? 'Update Score' : 'Start Match'}
+            {isLoading ? (
+              <span className="btn-spinner"></span>
+            ) : (
+              <>
+                <Play size={14} /> {isLive ? 'Update Score' : 'Start Match'}
+              </>
+            )}
           </button>
         </div>
       )}

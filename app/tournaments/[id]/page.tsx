@@ -19,11 +19,9 @@ interface PageProps {
 }
 
 function ConfettiEffect() {
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; size: number; color: string; delay: number; duration: number }>>([]);
-
-  useEffect(() => {
+  const [particles] = useState<Array<{ id: number; x: number; y: number; size: number; color: string; delay: number; duration: number }>>(() => {
     const colors = ['#FFD700', '#FF4500', '#FF1493', '#00BFFF', '#32CD32', '#FF8C00', '#9400D3'];
-    const p = Array.from({ length: 80 }, (_, i) => ({
+    return Array.from({ length: 80 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: -10 - Math.random() * 20,
@@ -32,8 +30,7 @@ function ConfettiEffect() {
       delay: Math.random() * 5,
       duration: 3 + Math.random() * 4
     }));
-    setParticles(p);
-  }, []);
+  });
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
@@ -86,6 +83,8 @@ export default function TournamentDetailPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true);
   const [isProgressing, setIsProgressing] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [startingMatchId, setStartingMatchId] = useState<string | null>(null);
 
   // Stage picker: which stage's data is currently being viewed (defaults to the live stage)
   const [viewedStageIndex, setViewedStageIndex] = useState(0);
@@ -93,15 +92,44 @@ export default function TournamentDetailPage({ params }: PageProps) {
   const didInitRef = useRef(false);
 
   // Auth State
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => typeof window !== 'undefined' ? getAdminPin() !== '' : false);
 
   // Next stage progression form states
   const [nextStageType, setNextStageType] = useState<'round-robin' | 'single-elimination'>('single-elimination');
   const [advancingCount, setAdvancingCount] = useState(2);
   const [nextGroupsCount, setNextGroupsCount] = useState(1);
 
+  async function fetchTournament() {
+    try {
+      const res = await fetch(`/api/tournaments/${tournamentId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setTournament(data);
+      } else {
+        router.push('/tournaments');
+      }
+    } catch (err) {
+      console.error('Error fetching tournament details:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchPlayers() {
+    try {
+      const res = await fetch('/api/players');
+      if (res.ok) {
+        setPlayers(await res.json());
+      }
+    } catch (err) {
+      console.error('Error fetching players:', err);
+    }
+  }
+
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchTournament();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPlayers();
     
     // Auth state sync
@@ -141,8 +169,10 @@ export default function TournamentDetailPage({ params }: PageProps) {
     const pickedStage = tournament.stages[viewedStageIndex];
     if (!pickedStage) return;
     if (activeTab === 'standings' && !(pickedStage.type === 'round-robin' && pickedStage.groups)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab('matches');
     } else if (activeTab === 'bracket' && !(pickedStage.type === 'single-elimination' && pickedStage.bracket)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab('matches');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -166,33 +196,6 @@ export default function TournamentDetailPage({ params }: PageProps) {
     }
     prevCurrentStageIndexRef.current = tournament.currentStageIndex;
   }, [tournament?.currentStageIndex]);
-
-  async function fetchTournament() {
-    try {
-      const res = await fetch(`/api/tournaments/${tournamentId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setTournament(data);
-      } else {
-        router.push('/tournaments');
-      }
-    } catch (err) {
-      console.error('Error fetching tournament details:', err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function fetchPlayers() {
-    try {
-      const res = await fetch('/api/players');
-      if (res.ok) {
-        setPlayers(await res.json());
-      }
-    } catch (err) {
-      console.error('Error fetching players:', err);
-    }
-  }
 
   if (loading && !tournament) {
     return (
@@ -292,7 +295,8 @@ export default function TournamentDetailPage({ params }: PageProps) {
         setTournament(updated);
         showToast('Tournament marked as completed!', 'success');
       } else {
-        showToast('Error completing tournament.', 'error');
+        const err = await res.json().catch(() => ({}));
+        showToast(`Error completing tournament: ${err.error || 'Unknown error'}`, 'error');
       }
     } catch (error) {
       console.error('Error completing tournament:', error);
@@ -339,6 +343,7 @@ export default function TournamentDetailPage({ params }: PageProps) {
       });
       if (!confirmStart) return;
 
+      setStartingMatchId(matchId);
       showToast('Starting match in real-time...', 'info');
       try {
         const res = await fetch(`/api/matches/${matchId}`, {
@@ -356,12 +361,14 @@ export default function TournamentDetailPage({ params }: PageProps) {
           showToast('Match is now LIVE!', 'success');
           router.push(`/tournaments/${tournamentId}/score?matchId=${matchId}`);
         } else {
-          const err = await res.json();
+          const err = await res.json().catch(() => ({}));
           showToast(`Error starting match: ${err.error || 'Unknown error'}`, 'error');
         }
       } catch (err) {
         console.error('Error starting match:', err);
         showToast('Error starting match.', 'error');
+      } finally {
+        setStartingMatchId(null);
       }
     } else {
       router.push(`/tournaments/${tournamentId}/score?matchId=${matchId}`);
@@ -514,6 +521,7 @@ export default function TournamentDetailPage({ params }: PageProps) {
                           }}
                           isAdmin={isAdmin && tournament.status === 'active' && isViewingLiveStage}
                           onSelectScoring={handleSelectScoring}
+                          isLoading={startingMatchId === match.id}
                         />
                       ))}
                     </div>
@@ -538,6 +546,7 @@ export default function TournamentDetailPage({ params }: PageProps) {
                       }}
                       isAdmin={isAdmin && tournament.status === 'active' && isViewingLiveStage && !!(match.team1Id && match.team2Id)}
                       onSelectScoring={handleSelectScoring}
+                      isLoading={startingMatchId === match.id}
                     />
                   ))}
                 </div>
@@ -557,6 +566,7 @@ export default function TournamentDetailPage({ params }: PageProps) {
               allTeams={allTeams || []}
               isAdmin={isAdmin && tournament.status === 'active' && isViewingLiveStage}
               onSelectScoring={handleSelectScoring}
+              loadingMatchId={startingMatchId}
             />
           </div>
         )}
@@ -653,7 +663,7 @@ export default function TournamentDetailPage({ params }: PageProps) {
                             <label className="form-label">Next Stage Format</label>
                             <select
                               value={nextStageType}
-                              onChange={(e) => setNextStageType(e.target.value as any)}
+                              onChange={(e) => setNextStageType(e.target.value as 'round-robin' | 'single-elimination')}
                               className="form-input"
                               style={{ background: 'var(--bg-primary)' }}
                             >
@@ -740,6 +750,7 @@ export default function TournamentDetailPage({ params }: PageProps) {
                   Deleting this tournament is permanent. Player Elo ratings calculated during its matches will remain unchanged and will NOT be reverted.
                 </p>
                 <button
+                  disabled={isDeleting}
                   onClick={async () => {
                     const confirmed = await confirm({
                       title: 'Delete Tournament Permanently',
@@ -747,18 +758,38 @@ export default function TournamentDetailPage({ params }: PageProps) {
                       confirmText: 'Delete Permanently',
                       cancelText: 'Cancel'
                     });
-                    if (confirmed) {
-                      fetch(`/api/tournaments/${tournamentId}`, {
+                    if (!confirmed) return;
+                    setIsDeleting(true);
+                    try {
+                      const res = await fetch(`/api/tournaments/${tournamentId}`, {
                         method: 'PUT',
                         headers: getAuthHeaders(),
                         body: JSON.stringify({ action: 'delete' })
-                      }).then(() => router.push('/tournaments'));
+                      });
+                      if (res.ok) {
+                        showToast('Tournament deleted successfully.', 'success');
+                        router.push('/tournaments');
+                      } else {
+                        const err = await res.json().catch(() => ({}));
+                        showToast(`Failed to delete tournament: ${err.error || 'Unknown error'}`, 'error');
+                        setIsDeleting(false);
+                      }
+                    } catch (error) {
+                      console.error('Error deleting tournament:', error);
+                      showToast('Failed to delete tournament due to a network error.', 'error');
+                      setIsDeleting(false);
                     }
                   }}
                   className="btn btn-danger"
-                  style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                  style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                 >
-                  Delete Tournament
+                  {isDeleting ? (
+                    <>
+                      <span className="btn-spinner" style={{ width: '12px', height: '12px' }}></span> Deleting...
+                    </>
+                  ) : (
+                    'Delete Tournament'
+                  )}
                 </button>
               </div>
             </div>

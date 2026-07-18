@@ -435,13 +435,13 @@ export default function TournamentsPage() {
               className={`segment-btn ${subTab === 'active' ? 'active' : ''}`}
               onClick={() => setSubTab('active')}
             >
-              <Trophy size={16} /> Active Tournaments
+              <Trophy size={16} /> Active
             </button>
             <button
               className={`segment-btn ${subTab === 'completed' ? 'active' : ''}`}
               onClick={() => setSubTab('completed')}
             >
-              <History size={16} /> Completed Tournaments
+              <History size={16} /> Completed
             </button>
           </div>
 
@@ -556,14 +556,7 @@ export default function TournamentsPage() {
                   <div className={styles.emptyStateContainer}>
                     <Trophy size={48} className={styles.emptyStateIcon} />
                     <h2>No Active Tournaments</h2>
-                    <p style={{ margin: '8px 0 20px 0' }}>Set up a new tournament with balanced teams, brackets, and live scoring.</p>
-                    <button
-                      className="btn btn-primary"
-                      onClick={openWizard}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '0.95rem' }}
-                    >
-                      <Plus size={18} /> Create New Tournament
-                    </button>
+                    <p style={{ margin: '8px 0 0 0' }}>Set up a new tournament with balanced teams, brackets, and live scoring.</p>
                   </div>
                 ) : (
                   <div className={styles.emptyStateContainer}>

@@ -774,7 +774,7 @@ export default function PlayersPage() {
       {/* Info Modal Overlay */}
       {isInfoModalOpen && (
         <div className={styles.modalOverlay} onClick={() => setIsInfoModalOpen(false)}>
-          <div className={styles.modal} style={{ maxWidth: '420px' }} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modal} style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
             <h3 className={styles.infoModalTitle}>
               🏸 How Ratings Work
             </h3>
@@ -790,8 +790,15 @@ export default function PlayersPage() {
               <div className={styles.infoSection}>
                 <span className={styles.infoQuestion}>How does it change?</span>
                 <span className={styles.infoAnswer}>
-                  - <strong>Win a match?</strong> Your rating goes up! 📈<br />
-                  - <strong>Lose a match?</strong> Your rating goes down. 📉
+                  - <strong>Win a match?</strong> Your rating goes up!<br />
+                  - <strong>Lose a match?</strong> Your rating goes down.
+                </span>
+              </div>
+
+              <div className={styles.infoSection}>
+                <span className={styles.infoQuestion}>🔥 Beat the Best</span>
+                <span className={styles.infoAnswer}>
+                  Defeating a higher-ranked opponent yields a much larger Elo gain. Conversely, losing to them results in only a minor penalty. Aim high!
                 </span>
               </div>
 
@@ -803,27 +810,27 @@ export default function PlayersPage() {
                 <div className={styles.infoTiersList}>
                   <div className={styles.infoTierRow}>
                     <span className="rating-tier-badge tier-master">👑 Master</span>
-                    <span className={styles.infoTierValue}>1800+ Elo</span>
+                    <span className={styles.infoTierValue}>1800+</span>
                   </div>
                   <div className={styles.infoTierRow}>
                     <span className="rating-tier-badge tier-diamond">🏆 Diamond</span>
-                    <span className={styles.infoTierValue}>1600 - 1799 Elo</span>
+                    <span className={styles.infoTierValue}>1600-1799</span>
                   </div>
                   <div className={styles.infoTierRow}>
                     <span className="rating-tier-badge tier-platinum">💎 Platinum</span>
-                    <span className={styles.infoTierValue}>1400 - 1599 Elo</span>
+                    <span className={styles.infoTierValue}>1400-1599</span>
                   </div>
                   <div className={styles.infoTierRow}>
                     <span className="rating-tier-badge tier-gold">🥇 Gold</span>
-                    <span className={styles.infoTierValue}>1200 - 1399 Elo</span>
+                    <span className={styles.infoTierValue}>1200-1399</span>
                   </div>
                   <div className={styles.infoTierRow}>
                     <span className="rating-tier-badge tier-silver">🥈 Silver</span>
-                    <span className={styles.infoTierValue}>1000 - 1199 Elo</span>
+                    <span className={styles.infoTierValue}>1000-1199</span>
                   </div>
                   <div className={styles.infoTierRow}>
                     <span className="rating-tier-badge tier-bronze">🥉 Bronze</span>
-                    <span className={styles.infoTierValue}>Under 1000 Elo</span>
+                    <span className={styles.infoTierValue}>&lt; 1000</span>
                   </div>
                 </div>
               </div>

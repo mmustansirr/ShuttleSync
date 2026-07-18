@@ -909,35 +909,35 @@
 .infoModalContent {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
 }
 
 .infoSection {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .infoQuestion {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--primary); /* Neon green for high contrast headings */
 }
 
 .infoAnswer {
-  font-size: 0.85rem;
-  line-height: 1.5;
+  font-size: 0.82rem;
+  line-height: 1.4;
   color: #e2e8f0; /* Perfect readable white-grey contrast */
 }
 
 .infoTiersList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 12px;
   margin-top: 4px;
   background: rgba(0, 0, 0, 0.2);
-  padding: var(--space-3);
+  padding: 8px 12px;
   border-radius: var(--radius-interactive);
   border: 1px solid var(--color-border-glass);
 }
@@ -946,7 +946,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: #cbd5e1;
 }
 
@@ -954,4 +954,5 @@
   font-family: var(--font-mono);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-heading);
+  font-size: 0.72rem;
 }

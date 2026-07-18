@@ -1,7 +1,7 @@
 // Upstash Redis Database configuration
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-const REDIS_KEY = 'shuttlesync:db';
+const REDIS_KEY = process.env.REDIS_KEY || (process.env.NODE_ENV === 'production' ? 'shuttlesync:db' : 'shuttlesync:db:dev');
 
 
 export interface Player {
